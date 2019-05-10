@@ -1,9 +1,21 @@
 package controllers
 
-import "time"
+import (
+	"time"
+
+	"github.com/kataras/iris"
+	"github.com/thiepwong/resident-manager/services"
+)
 
 type MvcResult interface {
 	GenerateResult(int, string, interface{}) (result *mvcResult)
+}
+
+type Controller struct {
+	Ctx     iris.Context
+	Service services.EmployeeService
+	Result  MvcResult
+	Auth    bool
 }
 
 type mvcResult struct {
@@ -36,3 +48,8 @@ func (c *mvcResult) GenerateResult(code int, msg string, d interface{}) (result 
 	c.Data = d
 	return c
 }
+
+// func jwt(ctx iris.Context) {
+// 	_auth := ctx.GetHeader("Authentication")
+
+// }

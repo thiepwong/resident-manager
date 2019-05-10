@@ -46,7 +46,7 @@ func LoadConfig() (*Config, error) {
 			},
 		},
 		Service: &Service{
-			Host: "localhost",
+			Host: "192.168.1.17",
 			Port: 8080,
 		},
 	}

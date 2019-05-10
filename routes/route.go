@@ -3,6 +3,7 @@ package routes
 import (
 	"os"
 
+	"github.com/thiepwong/resident-manager/middlewares"
 	"github.com/thiepwong/resident-manager/services"
 	"github.com/thiepwong/smartid/pkg/logger"
 
@@ -31,7 +32,7 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	//Register Employee Controller
 	empRep := repositories.NewEmployeeRepository(pg)
 	empSrv := services.NewEmployeeService(empRep)
-	emp := mvc.New(app.Party("/employees", cors).AllowMethods(iris.MethodOptions))
+	emp := mvc.New(app.Party("/employees", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions))
 	emp.Register(empSrv, mvcResult)
 	emp.Handle(new(controllers.EmployeeController))
 
