@@ -31,8 +31,10 @@ func (emp *employeeRepositoryContext) Register(employee *models.Employee) (*mode
 }
 
 func (emp *employeeRepositoryContext) GetById(id string) (*models.Employee, error) {
-	var _emp = &models.Employee{}
-	return _emp, nil
+	var _emp models.Employee
+	emp.db.Model(&_emp).Where("id=?", id).Select()
+	return &_emp, nil
+	//.Join("JOIN department as d on d.id = department_id").
 }
 
 func (emp *employeeRepositoryContext) GetAll() (*[]models.EmployeeModel, error) {

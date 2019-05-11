@@ -23,6 +23,7 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/register", "PostRegister")
 	b.Handle("GET", "/list", "GetList")
 	b.Handle("POST", "/signin", "PostSignin")
+	//b.Handle("GET","/detail")
 }
 
 func (c *EmployeeController) PostRegister() MvcResult {
@@ -84,4 +85,14 @@ func (c *EmployeeController) PostSignin() MvcResult {
 	c.Result.GenerateResult(500, "", rs)
 	return c.Result
 
+}
+
+func (c *EmployeeController) GetBy(id string) MvcResult {
+	if id == "" {
+		return c.Result
+	}
+	rs := c.Service.GetById(id)
+	fmt.Printf("Da goi den ID %s", id)
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
 }
