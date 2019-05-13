@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/kataras/iris"
-	"github.com/thiepwong/resident-manager/services"
 )
 
 type MvcResult interface {
@@ -12,10 +11,9 @@ type MvcResult interface {
 }
 
 type Controller struct {
-	Ctx     iris.Context
-	Service services.EmployeeService
-	Result  MvcResult
-	Auth    bool
+	Ctx    iris.Context
+	Result MvcResult
+	Auth   bool
 }
 
 type mvcResult struct {

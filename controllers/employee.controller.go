@@ -4,19 +4,17 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/thiepwong/resident-manager/services"
+
 	"github.com/kataras/iris/mvc"
 	"github.com/thiepwong/resident-manager/models"
 	"github.com/thiepwong/smartid/pkg/logger"
 )
 
-// type EmployeeController struct {
-// 	Ctx     iris.Context
-// 	Service services.EmployeeService
-// 	Result  MvcResult
-// }
-
-type EmployeeController Controller
+type EmployeeController struct {
+	Controller
+	Service services.EmployeeService
+}
 
 func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	c.Auth = true
@@ -28,30 +26,30 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 
 func (c *EmployeeController) PostRegister() MvcResult {
 	var _signupData = models.Employee{}
-	_token := c.Ctx.GetHeader("Authorization")
+	// _token := c.Ctx.GetHeader("Authorization")
 	er := c.Ctx.ReadJSON(&_signupData)
 	if er != nil {
 		logger.LogErr.Println(er)
 		return c.Result
 	}
 
-	token, err := jwt.Parse(_token, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
+	// token, err := jwt.Parse(_token, func(token *jwt.Token) (interface{}, error) {
+	// 	// Don't forget to validate the alg is what you expect:
+	// 	if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+	// 		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+	// 	}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return token, nil
-	})
+	// 	// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+	// 	return token, nil
+	// })
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["foo"], claims["nbf"])
-	} else {
-		fmt.Println(err)
-	}
+	// if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+	// 	fmt.Println(claims["foo"], claims["nbf"])
+	// } else {
+	// 	fmt.Println(err)
+	// }
 
-	r := c.Service.Register(_signupData.DepartmentId, _signupData.Name, _signupData.Mobile, _signupData.Address, _signupData.AccountId, _signupData.Role, _token)
+	r := c.Service.Register(_signupData.DepartmentId, _signupData.Name, _signupData.Mobile, _signupData.Address, _signupData.AccountId, _signupData.Role, "")
 	c.Result.GenerateResult(200, "", r)
 	return c.Result
 }

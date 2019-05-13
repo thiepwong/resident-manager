@@ -36,4 +36,11 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	emp.Register(empSrv, mvcResult)
 	emp.Handle(new(controllers.EmployeeController))
 
+	//Register Department Controller
+	deptRep := repositories.NewDepartmentRepository(pg)
+	deptSrv := services.NewDepartmentService(deptRep)
+	dept := mvc.New(app.Party("/department", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions))
+	dept.Register(deptSrv, mvcResult)
+	dept.Handle(new(controllers.DepartmentController))
+
 }
