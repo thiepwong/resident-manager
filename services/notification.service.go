@@ -39,7 +39,7 @@ func (s *notificationServiceImp) Add(sideId string, title string, publishDate in
 	return s.notiRepo.Add(_noti)
 }
 
-func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, pageOrder string) (*[]models.Notification, error) {
+func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, orderBy string) (*[]models.Notification, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
@@ -50,4 +50,20 @@ func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, pageOrder 
 		return nil, e
 	}
 	return rs, nil
+}
+
+func (s *notificationServiceImp) GetById(id string) (*models.Notification, error) {
+	var _noti models.Notification
+
+	return &_noti, nil
+}
+
+func (s *notificationServiceImp) Update(id string, sideId string, Title string, publishDate string, sendResult string, content string) (*models.Notification, error) {
+	var _noti models.Notification
+	return &_noti, nil
+
+}
+
+func (s *notificationServiceImp) Delete(id string) (bool, error) {
+	return true, nil
 }
