@@ -1,0 +1,17 @@
+Service:
+  Host: 192.168.1.136
+  Port: 8080
+  SSL: false
+  PrivateKey:
+  PublicKey:  
+
+Database:
+  Postgre:
+    Host: 171.244.49.164
+    Port: 5432
+    Username: postgres
+    Password: xoacdi!@#
+    DbName: spin_app
+    Schema:
+  Redis:
+  Mongo:

@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	conf, es := common.LoadConfig()
+	_cfgPath := "./configs/app.yaml"
+	conf, es := common.LoadConfig(_cfgPath)
 	if es != nil {
 		os.Exit(10)
 	}

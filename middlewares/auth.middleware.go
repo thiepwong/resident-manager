@@ -11,7 +11,8 @@ import (
 func Authorization(c iris.Context) {
 	_token := c.GetHeader("Authorization")
 	if _token == "" {
-		return
+		c.Next()
+		//	return
 	}
 	var _auth = &models.Auth{
 		Issuer:  "Nguyen Ai Quoc",

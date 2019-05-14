@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/thiepwong/resident-manager/models"
@@ -28,6 +29,9 @@ func NewNotificationService(repo repositories.NotificationRepository) Notificati
 
 func (s *notificationServiceImp) Add(sideId string, title string, publishDate int64, result bool, content string) (*models.Notification, error) {
 	_id := uuid.Must(uuid.NewV4())
+	if publishDate == 0 {
+		publishDate = time.Now().Unix()
+	}
 	var _noti = &models.Notification{
 		Id:          _id.String(),
 		SideId:      sideId,
@@ -53,9 +57,12 @@ func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, orderBy st
 }
 
 func (s *notificationServiceImp) GetById(id string) (*models.Notification, error) {
-	var _noti models.Notification
 
-	return &_noti, nil
+	rs, e := s.notiRepo.Detail(&models.Notification{Id: id})
+	if e != nil {
+		return nil, e
+	}
+	return rs, nil
 }
 
 func (s *notificationServiceImp) Update(id string, sideId string, Title string, publishDate string, sendResult string, content string) (*models.Notification, error) {

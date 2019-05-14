@@ -43,4 +43,11 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	dept.Register(deptSrv, mvcResult)
 	dept.Handle(new(controllers.DepartmentController))
 
+	//Register Notification Controller
+	notiRep := repositories.NewNotificationRepository(pg)
+	notiSrv := services.NewNotificationService(notiRep)
+	noti := mvc.New(app.Party("/notification", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	noti.Register(notiSrv, mvcResult)
+	noti.Handle(new(controllers.NotificationController))
+
 }

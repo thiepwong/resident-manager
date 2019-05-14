@@ -24,18 +24,26 @@ func NewNotificationRepository(db *pg.DB) *notificationRepositoryContext {
 }
 
 func (r *notificationRepositoryContext) Add(m *models.Notification) (*models.Notification, error) {
-	return m, nil
+	return m, r.db.Insert(m)
 }
 
-func (r *notificationRepositoryContext) GetList(pageIndex int, pageSize int, orderBy string) (*models.Notification, error) {
-	var _noti models.Notification
+func (r *notificationRepositoryContext) GetPagination(offset int, limit int, orderBy string) (*[]models.Notification, error) {
+	var _noti []models.Notification
+	if orderBy == "" {
+		orderBy = "id DESC"
+	}
 
+	r.db.Model(&_noti).Column("send_notification.*").Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_noti, nil
 }
 
 func (r *notificationRepositoryContext) Detail(m *models.Notification) (*models.Notification, error) {
-	var _noti models.Notification
-	return &_noti, nil
+
+	e := r.db.Model(m).Select()
+	if e != nil {
+		return nil, e
+	}
+	return m, nil
 }
 
 func (r *notificationRepositoryContext) Update(m *models.Notification) (*models.Notification, error) {

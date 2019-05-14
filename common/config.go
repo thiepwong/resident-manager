@@ -1,13 +1,12 @@
 package common
 
-type CfgPg struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Database string
-	Schema   string
-}
+import (
+	"io/ioutil"
+	"log"
+	"os"
+
+	"gopkg.in/yaml.v2"
+)
 
 type CfgRd struct {
 }
@@ -15,40 +14,47 @@ type CfgRd struct {
 type CfgMg struct {
 }
 
+type CfgPg struct {
+	Host     string `yaml:"Host"`
+	Port     int    `yaml:"Port"`
+	Username string `yaml:"Username"`
+	Password string `yaml:"Password"`
+	DbName   string `yaml:"DbName"`
+	Schema   string `yaml:"Schema"`
+}
+
 type CfgDb struct {
-	Postgre *CfgPg
-	Redis   *CfgRd
-	Mongo   *CfgMg
+	Postgre *CfgPg `yaml:"Postgre"`
+	Redis   *CfgRd `yaml:"Redis"`
+	Mongo   *CfgMg `yaml:"Mongo"`
 }
 
 type Service struct {
-	Host       string
-	Port       int
-	SSL        bool
-	PrivateKey string
-	PublicKey  string
+	Host       string `yaml:"Host"`
+	Port       int    `yaml:"Port"`
+	SSL        bool   `yaml:"SSL"`
+	PrivateKey string `yaml:"PrivateKey"`
+	PublicKey  string `yaml:"PublicKey"`
 }
 
 type Config struct {
-	Database *CfgDb
-	Service  *Service
+	Database *CfgDb   `yaml:"Database"`
+	Service  *Service `yaml:"Service"`
 }
 
-func LoadConfig() (*Config, error) {
-	var config = &Config{
-		Database: &CfgDb{
-			Postgre: &CfgPg{
-				Host:     "171.244.49.164",
-				Port:     5432,
-				Username: "postgres",
-				Password: "xoacdi!@#",
-				Database: "spin_app",
-			},
-		},
-		Service: &Service{
-			Host: "192.168.1.17",
-			Port: 8080,
-		},
+func LoadConfig(cfgPath string) (*Config, error) {
+	// Read config file as yaml
+	yamlFile, err := ioutil.ReadFile(cfgPath)
+
+	var _conf Config
+	if err != nil {
+		log.Printf("Cannot read the configuration file: #%v ", err)
+		os.Exit(102)
 	}
-	return config, nil
+	err = yaml.Unmarshal(yamlFile, &_conf)
+	if err != nil {
+		log.Printf("Cannot pasre the configuration file: #%v ", err)
+		os.Exit(103)
+	}
+	return &_conf, nil
 }
