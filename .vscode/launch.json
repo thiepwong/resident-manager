@@ -9,6 +9,13 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
+            "program": "${file}"
+        },
+        {
+            "name": "Launch file",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
             "program": "E:\\SOFTWARE\\LEARNING\\GO\\Workspace\\src\\github.com\\thiepwong\\resident-manager\\service.go"
         }
  

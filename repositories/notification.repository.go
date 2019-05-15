@@ -8,7 +8,7 @@ import (
 type NotificationRepository interface {
 	Add(*models.Notification) (*models.Notification, error)
 	GetPagination(int, int, string) (*[]models.Notification, error)
-	Detail(*models.Notification) (*models.Notification, error)
+	GetById(id string) (*models.Notification, error)
 	Update(*models.Notification) (*models.Notification, error)
 	Delete(*models.Notification) (bool, error)
 }
@@ -37,17 +37,17 @@ func (r *notificationRepositoryContext) GetPagination(offset int, limit int, ord
 	return &_noti, nil
 }
 
-func (r *notificationRepositoryContext) Detail(m *models.Notification) (*models.Notification, error) {
-
-	e := r.db.Model(m).Select()
+func (r *notificationRepositoryContext) GetById(id string) (*models.Notification, error) {
+	var _noti models.Notification
+	e := r.db.Model(&_noti).Where("id=?", id).Select()
 	if e != nil {
 		return nil, e
 	}
-	return m, nil
+	return &_noti, nil
 }
 
 func (r *notificationRepositoryContext) Update(m *models.Notification) (*models.Notification, error) {
-	return m, nil
+	return m, r.db.Update(m)
 }
 
 func (r *notificationRepositoryContext) Delete(m *models.Notification) (bool, error) {

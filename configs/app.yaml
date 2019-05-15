@@ -1,5 +1,5 @@
 Service:
-  Host: 192.168.1.136
+  Host: 127.0.0.1
   Port: 8080
   SSL: false
   PrivateKey:

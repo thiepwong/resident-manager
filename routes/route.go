@@ -32,14 +32,14 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	//Register Employee Controller
 	empRep := repositories.NewEmployeeRepository(pg)
 	empSrv := services.NewEmployeeService(empRep)
-	emp := mvc.New(app.Party("/employees", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions))
+	emp := mvc.New(app.Party("/employees", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	emp.Register(empSrv, mvcResult)
 	emp.Handle(new(controllers.EmployeeController))
 
 	//Register Department Controller
 	deptRep := repositories.NewDepartmentRepository(pg)
 	deptSrv := services.NewDepartmentService(deptRep)
-	dept := mvc.New(app.Party("/department", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions))
+	dept := mvc.New(app.Party("/department", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	dept.Register(deptSrv, mvcResult)
 	dept.Handle(new(controllers.DepartmentController))
 
@@ -49,5 +49,12 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	noti := mvc.New(app.Party("/notification", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	noti.Register(notiSrv, mvcResult)
 	noti.Handle(new(controllers.NotificationController))
+
+	//Register Side Controller
+	sideRep := repositories.NewSideRepository(pg)
+	sideSrv := services.NewSideService(sideRep)
+	side := mvc.New(app.Party("/side", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	side.Register(sideSrv, mvcResult)
+	side.Handle(new(controllers.SideController))
 
 }

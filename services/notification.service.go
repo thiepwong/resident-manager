@@ -13,7 +13,7 @@ type NotificationService interface {
 	Add(string, string, int64, bool, string) (*models.Notification, error)
 	GetList(int, int, string) (*[]models.Notification, error)
 	GetById(string) (*models.Notification, error)
-	Update(string, string, string, string, string, string) (*models.Notification, error)
+	Update(string, string, string, int64, bool, string) (*models.Notification, error)
 	Delete(string) (bool, error)
 }
 
@@ -58,16 +58,25 @@ func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, orderBy st
 
 func (s *notificationServiceImp) GetById(id string) (*models.Notification, error) {
 
-	rs, e := s.notiRepo.Detail(&models.Notification{Id: id})
+	rs, e := s.notiRepo.GetById(id)
 	if e != nil {
 		return nil, e
 	}
 	return rs, nil
 }
 
-func (s *notificationServiceImp) Update(id string, sideId string, Title string, publishDate string, sendResult string, content string) (*models.Notification, error) {
-	var _noti models.Notification
-	return &_noti, nil
+func (s *notificationServiceImp) Update(id string, sideId string, title string, publishDate int64, sendResult bool, content string) (*models.Notification, error) {
+
+	var _noti = models.Notification{
+		Id:          id,
+		SideId:      sideId,
+		Title:       title,
+		PublishDate: publishDate,
+		SendResult:  sendResult,
+		Content:     content,
+	}
+
+	return s.notiRepo.Update(&_noti)
 
 }
 
