@@ -9,10 +9,10 @@ import (
 )
 
 type BlockService interface {
-	Add(string, string, string, string, string) (*models.Block, error)
+	Add(string, string) (*models.Block, error)
 	GetById(string) (*models.BlockModel, error)
-	GetList(int, int, string) (*[]models.BlockModel, error)
-	Update(string, string, string, string, string, string) (*models.BlockModel, error)
+	GetList(string, int, int, string) (*[]models.BlockModel, error)
+	Update(string, string, string) (*models.Block, error)
 	Delete(string) (bool, error)
 }
 
@@ -26,38 +26,40 @@ func NewBlockService(repo repositories.BlockRepository) BlockService {
 	}
 }
 
-func (s *blockServiceImp) Add(name string, address string, ip string, cover string, hotline string) (*models.Block, error) {
+func (s *blockServiceImp) Add(name string, sideId string) (*models.Block, error) {
 
 	_id := uuid.Must(uuid.NewV4())
-	_side := models.Block{}
-	return s.blockRepo.Add(&_side)
+	_block := models.Block{
+		Id:     _id.String(),
+		Name:   name,
+		SideId: sideId,
+	}
+
+	return s.blockRepo.Add(&_block)
 }
 
 func (s *blockServiceImp) GetById(id string) (*models.BlockModel, error) {
 	return s.blockRepo.GetById(id)
 }
 
-func (s *blockServiceImp) GetList(pageIndex int, pageSize int, orderBy string) (*[]models.Block, error) {
+func (s *blockServiceImp) GetList(sideId string, pageIndex int, pageSize int, orderBy string) (*[]models.BlockModel, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.blockRepo.GetPagination(offset, pageSize, orderBy)
+	rs, e := s.blockRepo.GetPagination(sideId, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}
 	return rs, nil
 }
 
-func (s *blockServiceImp) Update(id string, name string, address string, ip string, cover string, hotline string) (*models.Block, error) {
+func (s *blockServiceImp) Update(id string, name string, sideId string) (*models.Block, error) {
 	_side := &models.Block{
-		Id:      id,
-		Name:    name,
-		Address: address,
-		Ip:      ip,
-		Cover:   cover,
-		Hotline: hotline,
+		Id:     id,
+		Name:   name,
+		SideId: sideId,
 	}
 	return s.blockRepo.Update(_side)
 }

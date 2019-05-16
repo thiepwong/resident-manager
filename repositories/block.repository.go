@@ -8,7 +8,7 @@ import (
 type BlockRepository interface {
 	Add(*models.Block) (*models.Block, error)
 	GetById(string) (*models.BlockModel, error)
-	GetPagination(int, int, string) (*[]models.BlockModel, error)
+	GetPagination(string, int, int, string) (*[]models.BlockModel, error)
 	Update(*models.Block) (*models.Block, error)
 	Delete(*models.Block) (bool, error)
 }
@@ -29,15 +29,15 @@ func (r *blockRepositoryContext) Add(m *models.Block) (*models.Block, error) {
 
 func (r *blockRepositoryContext) GetById(id string) (*models.BlockModel, error) {
 	var _block models.BlockModel
-	return &_block, r.db.Model(&_block).Where("id=?", id).Select()
+	return &_block, r.db.Model(&_block).Column("block.*", "Side").Where("block.id=?", id).Select()
 }
 
-func (r *blockRepositoryContext) GetPagination(offset int, limit int, orderBy string) (*[]models.BlockModel, error) {
+func (r *blockRepositoryContext) GetPagination(sideId string, offset int, limit int, orderBy string) (*[]models.BlockModel, error) {
 	var _block []models.BlockModel
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
-	r.db.Model(&_block).Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_block).Column("block.*", "Side").Where("side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_block, nil
 }
 

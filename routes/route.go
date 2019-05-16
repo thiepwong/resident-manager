@@ -57,4 +57,25 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	side.Register(sideSrv, mvcResult)
 	side.Handle(new(controllers.SideController))
 
+	//Register Block Controller
+	blockRep := repositories.NewBlockRepository(pg)
+	blockSrv := services.NewBlockService(blockRep)
+	block := mvc.New(app.Party("/block", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	block.Register(blockSrv, mvcResult)
+	block.Handle(new(controllers.BlockController))
+
+	//Register Area Controller
+	areaRep := repositories.NewAreaRepository(pg)
+	areaSrv := services.NewAreaService(areaRep)
+	area := mvc.New(app.Party("/area", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	area.Register(areaSrv, mvcResult)
+	area.Handle(new(controllers.AreaController))
+
+	//Register Contact Controller
+	contactRep := repositories.NewContactRepository(pg)
+	contactSrv := services.NewContactService(contactRep)
+	contact := mvc.New(app.Party("/contact", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	contact.Register(contactSrv, mvcResult)
+	contact.Handle(new(controllers.ContactController))
+
 }

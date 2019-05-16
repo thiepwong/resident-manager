@@ -10,8 +10,8 @@ import (
 
 type DepartmentService interface {
 	Add(*models.Department) (*models.Department, error)
-	GetById(string) (*models.Department, error)
-	GetList(int, int, string) (*[]models.Department, error)
+	GetById(string) (*models.DepartmentModel, error)
+	GetList(string, int, int, string) (*[]models.DepartmentModel, error)
 	Update(string, string, string) (*models.Department, error)
 	Delete(string) (bool, error)
 }
@@ -33,22 +33,22 @@ func (s *departmentServiceImp) Add(m *models.Department) (*models.Department, er
 	}
 
 	_id := uuid.Must(uuid.NewV4())
-	m.ID = _id.String()
+	m.Id = _id.String()
 	return s.departmentRepo.Add(m)
 
 }
 
-func (s *departmentServiceImp) GetById(id string) (*models.Department, error) {
+func (s *departmentServiceImp) GetById(id string) (*models.DepartmentModel, error) {
 	return s.departmentRepo.GetById(id)
 }
 
-func (s *departmentServiceImp) GetList(pageIndex int, pageSize int, orderBy string) (*[]models.Department, error) {
+func (s *departmentServiceImp) GetList(sideId string, pageIndex int, pageSize int, orderBy string) (*[]models.DepartmentModel, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.departmentRepo.GetPagination(offset, pageSize, orderBy)
+	rs, e := s.departmentRepo.GetPagination(sideId, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}
@@ -56,11 +56,11 @@ func (s *departmentServiceImp) GetList(pageIndex int, pageSize int, orderBy stri
 }
 
 func (s *departmentServiceImp) Update(id string, name string, sideId string) (*models.Department, error) {
-	var _dept = models.Department{ID: id, Name: name, SideId: sideId}
+	var _dept = models.Department{Id: id, Name: name, SideId: sideId}
 	return s.departmentRepo.Update(&_dept)
 }
 
 func (s *departmentServiceImp) Delete(id string) (bool, error) {
-	var _dept = models.Department{ID: id}
+	var _dept = models.Department{Id: id}
 	return s.departmentRepo.Delete(&_dept)
 }

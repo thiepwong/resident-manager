@@ -26,7 +26,7 @@ type mvcResult struct {
 }
 
 func NewMvcResult(result *interface{}) MvcResult {
-	return &mvcResult{Data: result, Code: 100, Version: "1.0", System: "SmartID"}
+	return &mvcResult{Data: result, Code: 200, Version: "1.0", System: "Resident-Manager"}
 
 }
 
