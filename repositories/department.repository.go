@@ -30,7 +30,7 @@ func (r *departmentRepositoryContext) Add(m *models.Department) (*models.Departm
 
 func (r *departmentRepositoryContext) GetById(id string) (*models.DepartmentModel, error) {
 	var _dept models.DepartmentModel
-	return &_dept, r.db.Model(&_dept).Where("id=?", id).Select()
+	return &_dept, r.db.Model(&_dept).Column("department.*", "Side").Where("department.id=?", id).Select()
 }
 
 func (r *departmentRepositoryContext) GetAll() (*[]models.DepartmentModel, error) {

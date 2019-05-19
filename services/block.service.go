@@ -56,15 +56,15 @@ func (s *blockServiceImp) GetList(sideId string, pageIndex int, pageSize int, or
 }
 
 func (s *blockServiceImp) Update(id string, name string, sideId string) (*models.Block, error) {
-	_side := &models.Block{
+	_block := &models.Block{
 		Id:     id,
 		Name:   name,
 		SideId: sideId,
 	}
-	return s.blockRepo.Update(_side)
+	return s.blockRepo.Update(_block)
 }
 
 func (s *blockServiceImp) Delete(id string) (bool, error) {
-	_side := &models.Block{Id: id}
-	return s.blockRepo.Delete(_side)
+	_block := &models.Block{Id: id}
+	return s.blockRepo.Delete(_block)
 }

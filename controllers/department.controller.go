@@ -15,8 +15,10 @@ type DepartmentController struct {
 
 func (c *DepartmentController) BeforeActivation(b mvc.BeforeActivation) {
 	c.Auth = true
+
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("GET", "/list/{sideId:string}", "GetList")
+	b.Handle("POST", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 	b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
@@ -52,6 +54,19 @@ func (c *DepartmentController) GetList(sideId string) MvcResult {
 		return c.Result
 	}
 
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *DepartmentController) GetById(id string) MvcResult {
+	if id == "" {
+		return c.Result
+	}
+	rs, e := c.Service.GetById(id)
+	if e != nil {
+		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
 	c.Result.GenerateResult(200, "", rs)
 	return c.Result
 }

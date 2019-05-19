@@ -29,9 +29,12 @@ func NewDepartmentService(repo repositories.DepartmentRepository) DepartmentServ
 
 func (s *departmentServiceImp) Add(m *models.Department) (*models.Department, error) {
 	if m.Name == "" {
-		return nil, errors.New("invalid infomation!")
+		return nil, errors.New("Name field is invalid!")
 	}
 
+	if m.SideId == "" {
+		return nil, errors.New("Side Id field is invalid!")
+	}
 	_id := uuid.Must(uuid.NewV4())
 	m.Id = _id.String()
 	return s.departmentRepo.Add(m)

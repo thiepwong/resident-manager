@@ -78,4 +78,11 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	contact.Register(contactSrv, mvcResult)
 	contact.Handle(new(controllers.ContactController))
 
+	//Register Room Controller
+	roomRep := repositories.NewRoomRepository(pg)
+	roomSrv := services.NewRoomService(roomRep)
+	room := mvc.New(app.Party("/room", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	room.Register(roomSrv, mvcResult)
+	room.Handle(new(controllers.RoomController))
+
 }

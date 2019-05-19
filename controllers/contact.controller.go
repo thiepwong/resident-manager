@@ -66,7 +66,7 @@ func (c *ContactController) PostAdd() MvcResult {
 		return c.Result
 	}
 
-	r, e := c.Service.Add(_contact.Name, _contact.DepartmentId)
+	r, e := c.Service.Add(_contact.Name, _contact.DepartmentId, _contact.PhoneNumber)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result

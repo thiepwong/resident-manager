@@ -9,7 +9,7 @@ import (
 )
 
 type ContactService interface {
-	Add(string, string) (*models.Contact, error)
+	Add(string, string, string) (*models.Contact, error)
 	GetById(string) (*models.ContactModel, error)
 	GetList(string, int, int, string) (*[]models.ContactModel, error)
 	Update(string, string, string, string) (*models.Contact, error)
@@ -26,13 +26,14 @@ func NewContactService(repo repositories.ContactRepository) ContactService {
 	}
 }
 
-func (s *contactServiceImp) Add(name string, departmentId string) (*models.Contact, error) {
+func (s *contactServiceImp) Add(name string, departmentId string, phoneNumber string) (*models.Contact, error) {
 
 	_id := uuid.Must(uuid.NewV4())
 	_contact := models.Contact{
 		Id:           _id.String(),
 		Name:         name,
 		DepartmentId: departmentId,
+		PhoneNumber:  phoneNumber,
 	}
 
 	return s.contactRepo.Add(&_contact)
