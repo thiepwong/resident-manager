@@ -15,17 +15,17 @@ type NotificationController struct {
 }
 
 func (c *NotificationController) BeforeActivation(b mvc.BeforeActivation) {
-	b.Handle("GET", "/list", "GetList")
+	b.Handle("GET", "/list/{sideId}", "GetList")
 	b.Handle("GET", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 }
 
-func (c *NotificationController) GetList() MvcResult {
+func (c *NotificationController) GetList(sideId string) MvcResult {
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
-	rs, e := c.Service.GetList(_pageIndex, _pageSize, _orderBy)
+	rs, e := c.Service.GetList(sideId, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result

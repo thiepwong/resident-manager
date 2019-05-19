@@ -7,8 +7,8 @@ import (
 
 type NotificationRepository interface {
 	Add(*models.Notification) (*models.Notification, error)
-	GetPagination(int, int, string) (*[]models.Notification, error)
-	GetById(id string) (*models.Notification, error)
+	GetPagination(string, int, int, string) (*[]models.NotificationModel, error)
+	GetById(id string) (*models.NotificationModel, error)
 	Update(*models.Notification) (*models.Notification, error)
 	Delete(*models.Notification) (bool, error)
 }
@@ -27,19 +27,19 @@ func (r *notificationRepositoryContext) Add(m *models.Notification) (*models.Not
 	return m, r.db.Insert(m)
 }
 
-func (r *notificationRepositoryContext) GetPagination(offset int, limit int, orderBy string) (*[]models.Notification, error) {
-	var _noti []models.Notification
+func (r *notificationRepositoryContext) GetPagination(sideId string, offset int, limit int, orderBy string) (*[]models.NotificationModel, error) {
+	var _noti []models.NotificationModel
 	if orderBy == "" {
-		orderBy = "id DESC"
+		orderBy = "title DESC"
 	}
 
-	r.db.Model(&_noti).Column("send_notification.*").Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_noti).Column("send_notification.*", "Side").Where("side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_noti, nil
 }
 
-func (r *notificationRepositoryContext) GetById(id string) (*models.Notification, error) {
-	var _noti models.Notification
-	e := r.db.Model(&_noti).Where("id=?", id).Select()
+func (r *notificationRepositoryContext) GetById(id string) (*models.NotificationModel, error) {
+	var _noti models.NotificationModel
+	e := r.db.Model(&_noti).Column("send_notification.*", "Side").Where("send_notification.id=?", id).Select()
 	if e != nil {
 		return nil, e
 	}

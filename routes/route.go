@@ -85,4 +85,11 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	room.Register(roomSrv, mvcResult)
 	room.Handle(new(controllers.RoomController))
 
+	//Register Feedback Controller
+	feedbackrep := repositories.NewFeedbackRepository(pg)
+	feedbackSrv := services.NewFeedbackService(feedbackrep)
+	feedback := mvc.New(app.Party("/feedback", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	feedback.Register(feedbackSrv, mvcResult)
+	feedback.Handle(new(controllers.FeedbackController))
+
 }

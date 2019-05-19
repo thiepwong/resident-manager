@@ -11,8 +11,8 @@ import (
 
 type NotificationService interface {
 	Add(string, string, int64, bool, string) (*models.Notification, error)
-	GetList(int, int, string) (*[]models.Notification, error)
-	GetById(string) (*models.Notification, error)
+	GetList(string, int, int, string) (*[]models.NotificationModel, error)
+	GetById(string) (*models.NotificationModel, error)
 	Update(string, string, string, int64, bool, string) (*models.Notification, error)
 	Delete(string) (bool, error)
 }
@@ -43,20 +43,23 @@ func (s *notificationServiceImp) Add(sideId string, title string, publishDate in
 	return s.notiRepo.Add(_noti)
 }
 
-func (s *notificationServiceImp) GetList(pageIndex int, pageSize int, orderBy string) (*[]models.Notification, error) {
+func (s *notificationServiceImp) GetList(sideId string, pageIndex int, pageSize int, orderBy string) (*[]models.NotificationModel, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
+	if sideId == "" {
+		return nil, errors.New("Side id is required for notification list!")
+	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.notiRepo.GetPagination(offset, pageSize, orderBy)
+	rs, e := s.notiRepo.GetPagination(sideId, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}
 	return rs, nil
 }
 
-func (s *notificationServiceImp) GetById(id string) (*models.Notification, error) {
+func (s *notificationServiceImp) GetById(id string) (*models.NotificationModel, error) {
 
 	rs, e := s.notiRepo.GetById(id)
 	if e != nil {
