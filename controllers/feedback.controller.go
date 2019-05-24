@@ -3,6 +3,8 @@ package controllers
 import (
 	"strconv"
 
+	"github.com/thiepwong/resident-manager/models"
+
 	"github.com/kataras/iris/mvc"
 	"github.com/thiepwong/resident-manager/services"
 )
@@ -15,8 +17,7 @@ type FeedbackController struct {
 func (c *FeedbackController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/list/{sideId:string}", "GetList")
 	b.Handle("GET", "/detail/{id:string}", "GetById")
-	// b.Handle("POST", "/add", "PostAdd")
-	// b.Handle("POST", "/update/{id:string}", "PostUpdate")
+	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 	// b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
@@ -53,19 +54,19 @@ func (c *FeedbackController) GetById(id string) MvcResult {
 }
 
 // func (c *FeedbackController) PostAdd() MvcResult {
-// 	_block := &models.Block{}
-// 	e := c.Ctx.ReadJSON(_block)
+// 	_feedback := &models.Feedback{}
+// 	e := c.Ctx.ReadJSON(_feedback)
 // 	if e != nil {
 // 		c.Result.GenerateResult(500, e.Error(), e)
 // 		return c.Result
 // 	}
 
-// 	if _block.SideId == "" {
+// 	if _feedback.SideId == "" {
 // 		c.Result.GenerateResult(500, "Side Id cannot empty", nil)
 // 		return c.Result
 // 	}
 
-// 	r, e := c.Service.Add(_block.Name, _block.SideId)
+// 	r, e := c.Service.Add(_feedback.Name, _feedback.SideId)
 // 	if e != nil {
 // 		c.Result.GenerateResult(500, e.Error(), e)
 // 		return c.Result
@@ -75,24 +76,30 @@ func (c *FeedbackController) GetById(id string) MvcResult {
 // 	return c.Result
 // }
 
-// func (c *FeedbackController) PostUpdate(id string) MvcResult {
+func (c *FeedbackController) PostUpdate(id string) MvcResult {
 
-// 	_block := &models.Block{}
-// 	e := c.Ctx.ReadJSON(_block)
-// 	if e != nil {
-// 		c.Result.GenerateResult(500, e.Error(), e)
-// 		return c.Result
-// 	}
-// 	r, e := c.Service.Update(id, _block.Name, _block.SideId)
-// 	if e != nil {
-// 		c.Result.GenerateResult(500, e.Error(), e)
-// 		return c.Result
-// 	}
+	_feedback := &models.Feedback{}
 
-// 	c.Result.GenerateResult(200, "", r)
-// 	return c.Result
+	if id == "" {
+		c.Result.GenerateResult(500, "Id is required!", nil)
+		return c.Result
+	}
 
-// }
+	e := c.Ctx.ReadJSON(_feedback)
+	if e != nil {
+		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
+	r, e := c.Service.Update(id, _feedback.Status, _feedback.AssignEmployeeId, _feedback.AssignedBy, _feedback.DueDate, _feedback.ActualFinishDate)
+	if e != nil {
+		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
+
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
 
 // func (c *FeedbackController) PostDelete(id string) MvcResult {
 // 	r, e := c.Service.Delete(id)

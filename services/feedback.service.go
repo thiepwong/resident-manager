@@ -12,7 +12,7 @@ type FeedbackService interface {
 	Add(string, string, string) (*models.Feedback, error)
 	GetById(string) (*models.FeedbackModel, error)
 	GetList(string, int, int, string) (*[]models.FeedbackModel, error)
-	Update(string, string, string, string) (*models.Feedback, error)
+	Update(string, int, string, string, int, int) (*models.Feedback, error)
 	Delete(string) (bool, error)
 }
 
@@ -56,12 +56,14 @@ func (s *feedbackServiceImp) GetList(sideId string, pageIndex int, pageSize int,
 	return rs, nil
 }
 
-func (s *feedbackServiceImp) Update(id string, roomNo string, sideId string, blockId string) (*models.Feedback, error) {
+func (s *feedbackServiceImp) Update(id string, status int, employee string, assignBy string, dueDate int, finishDate int) (*models.Feedback, error) {
 	_feedback := &models.Feedback{
-		Id: id,
-		// RoomNo:  roomNo,
-		// SideId:  sideId,
-		// BlockId: blockId,
+		Id:               id,
+		Status:           status,
+		AssignEmployeeId: employee,
+		AssignedBy:       assignBy,
+		DueDate:          dueDate,
+		ActualFinishDate: finishDate,
 	}
 	return s.feedbackRepo.Update(_feedback)
 }
