@@ -17,7 +17,7 @@ type EmployeeService interface {
 	Register(string, string, string, string, string, int, string) *models.Employee
 	GetById(string) *models.Employee
 	GetAll() *[]models.EmployeeModel
-	GetList(int, int, string) (*[]models.EmployeeModel, error)
+	GetList(bool, string, int, int, string) (*[]models.EmployeeModel, error)
 	Update(string, string, string, string) *models.Employee
 	Signin(string, string, string) (map[string]interface{}, error)
 }
@@ -72,13 +72,14 @@ func (s *employeeServiceImp) GetAll() *[]models.EmployeeModel {
 
 }
 
-func (s *employeeServiceImp) GetList(pageIndex int, pageSize int, orderBy string) (*[]models.EmployeeModel, error) {
+func (s *employeeServiceImp) GetList(isDept bool, requestId string, pageIndex int, pageSize int, orderBy string) (*[]models.EmployeeModel, error) {
+
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.employeeRepo.GetPagination(offset, pageSize, orderBy)
+	rs, e := s.employeeRepo.GetPagination(isDept, requestId, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}

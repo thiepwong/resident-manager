@@ -19,7 +19,7 @@ type EmployeeController struct {
 func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	c.Auth = true
 	b.Handle("POST", "/register", "PostRegister")
-	b.Handle("GET", "/list", "GetList")
+	b.Handle("GET", "/list/{requestId:string}", "GetList")
 	b.Handle("POST", "/signin", "PostSignin")
 	//b.Handle("GET","/detail")
 }
@@ -54,11 +54,18 @@ func (c *EmployeeController) PostRegister() MvcResult {
 	return c.Result
 }
 
-func (c *EmployeeController) GetList() MvcResult {
+func (c *EmployeeController) GetList(requestId string) MvcResult {
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
-	rs, e := c.Service.GetList(_pageIndex, _pageSize, _orderBy)
+	_isDept, e := strconv.Atoi(c.Ctx.URLParam("type"))
+	var _isDeptmentId bool
+	if _isDept == 1 {
+		_isDeptmentId = true
+	} else {
+		_isDeptmentId = false
+	}
+	rs, e := c.Service.GetList(_isDeptmentId, requestId, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, "", e)
 		return c.Result
