@@ -9,7 +9,7 @@ type EmployeeRepository interface {
 	Register(*models.Employee) (*models.Employee, error)
 	GetById(string) (*models.Employee, error)
 	GetAll() (*[]models.EmployeeModel, error)
-	GetPagination(bool, string, int, int, string) (*[]models.EmployeeModel, error)
+	GetPagination(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(*models.Employee) (*models.Employee, error)
 }
 
@@ -46,16 +46,25 @@ func (emp *employeeRepositoryContext) GetAll() (*[]models.EmployeeModel, error) 
 	return &_employee, nil
 }
 
-func (emp *employeeRepositoryContext) GetPagination(isDepartment bool, requestId string, offset int, limit int, orderBy string) (*[]models.EmployeeModel, error) {
+func (emp *employeeRepositoryContext) GetPagination(isDepartment bool, requestId string, role int, offset int, limit int, orderBy string) (*[]models.EmployeeModel, error) {
 	var _employee []models.EmployeeModel
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
 
-	if isDepartment == false {
-		emp.db.Model(&_employee).Column("employee.*", "Department").Where("department.side_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	if role != 0 {
+		if isDepartment == false {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("department.side_id=? and employee.role=?", requestId, role).Order(orderBy).Limit(limit).Offset(offset).Select()
+		} else {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.department_id=? and employee.role=?", requestId, role).Order(orderBy).Limit(limit).Offset(offset).Select()
+		}
 	} else {
-		emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.department_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+
+		if isDepartment == false {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("department.side_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+		} else {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.department_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+		}
 	}
 
 	return &_employee, nil

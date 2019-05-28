@@ -59,13 +59,14 @@ func (c *EmployeeController) GetList(requestId string) MvcResult {
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
 	_isDept, e := strconv.Atoi(c.Ctx.URLParam("type"))
+	_role, e := strconv.Atoi(c.Ctx.URLParam("role"))
 	var _isDeptmentId bool
 	if _isDept == 1 {
 		_isDeptmentId = true
 	} else {
 		_isDeptmentId = false
 	}
-	rs, e := c.Service.GetList(_isDeptmentId, requestId, _pageIndex, _pageSize, _orderBy)
+	rs, e := c.Service.GetList(_isDeptmentId, requestId, _role, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, "", e)
 		return c.Result
