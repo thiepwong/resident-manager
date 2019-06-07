@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/thiepwong/resident-manager/common"
+
 	uuid "github.com/satori/go.uuid"
 	"github.com/thiepwong/resident-manager/models"
 	"github.com/thiepwong/resident-manager/repositories"
@@ -19,17 +21,22 @@ type EmployeeService interface {
 	GetAll() *[]models.EmployeeModel
 	GetList(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(string, string, string, string) *models.Employee
-	Signin(string, string, string) (map[string]interface{}, error)
+	Signin(string, string, string) (interface{}, error)
+	SignUp(*models.SignUpModel) (interface{}, error)
+	Activate(*models.Activate) (interface{}, error)
+	SendOTP(string) (interface{}, error)
 }
 
 type employeeServiceImp struct {
 	employeeRepo repositories.EmployeeRepository
+	config       *common.Config
 }
 
-func NewEmployeeService(repo repositories.EmployeeRepository) EmployeeService {
+func NewEmployeeService(repo repositories.EmployeeRepository, cfg *common.Config) EmployeeService {
 	return &employeeServiceImp{
 
 		employeeRepo: repo,
+		config:       cfg,
 	}
 }
 
@@ -91,15 +98,48 @@ func (s *employeeServiceImp) Update(departmentId string, name string, mobile str
 	return _emp
 }
 
-func (s *employeeServiceImp) Signin(username string, password string, system string) (map[string]interface{}, error) {
+func (s *employeeServiceImp) Signin(username string, password string, system string) (interface{}, error) {
 
 	message := map[string]interface{}{
 		"username": username,
 		"password": password,
-		"system":   system}
+		"system":   system,
+	}
 
 	bytesRepresentation, err := json.Marshal(message)
-	url := "http://171.244.49.164:3333/api/v1/accounts/sign-in?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
+	url := s.config.Option.SmsUrl + "accounts/sign-in?api_token=" + s.config.Option.SmsApiToken
+	//url := "http://localhost:3333/api/v1/accounts/sign-in?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
+	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "Application/json")
+	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors.Message == "" {
+		e = nil
+	} else {
+		e = errors.New(res.Errors.Message)
+	}
+
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) {
+	bytesRepresentation, err := json.Marshal(m)
+	url := s.config.Option.SmsUrl + "accounts/sign-up?api_token=" + s.config.Option.SmsApiToken
+	//url := "http://localhost:3333/api/v1/accounts/sign-up?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		log.Fatal("Loi roi")
@@ -117,9 +157,80 @@ func (s *employeeServiceImp) Signin(username string, password string, system str
 		return nil, err
 	}
 
-	var result map[string]interface{}
+	var res models.Response
+	//	var result map[string]interface{}
+	json.NewDecoder(response.Body).Decode(&res)
 
-	json.NewDecoder(response.Body).Decode(&result)
+	if res.Errors.Code == "" {
+		e = nil
+	} else {
+		e = errors.New(res.Errors.Message)
+	}
 
-	return result, nil
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) Activate(m *models.Activate) (interface{}, error) {
+	bytesRepresentation, err := json.Marshal(m)
+	url := s.config.Option.SmsUrl + "accounts/verify-account?api_token=" + s.config.Option.SmsApiToken
+	//url := "http://localhost:3333/api/v1/accounts/verify-account?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
+	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "Application/json")
+	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors.Message == "" {
+		e = nil
+	} else {
+		e = errors.New(res.Errors.Message)
+	}
+
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
+	args := map[string]interface{}{
+		"mobile": mobile,
+	}
+
+	bytesRepresentation, err := json.Marshal(args)
+	url := s.config.Option.SmsUrl + "accounts/send-otp?api_token=" + s.config.Option.SmsApiToken
+	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "Application/json")
+	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors.Message == "" {
+		e = nil
+	} else {
+		e = errors.New(res.Errors.Message)
+	}
+
+	return res.Data, e
 }

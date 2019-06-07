@@ -31,7 +31,7 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 
 	//Register Employee Controller
 	empRep := repositories.NewEmployeeRepository(pg)
-	empSrv := services.NewEmployeeService(empRep)
+	empSrv := services.NewEmployeeService(empRep, config)
 	emp := mvc.New(app.Party("/employees", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	emp.Register(empSrv, mvcResult)
 	emp.Handle(new(controllers.EmployeeController))

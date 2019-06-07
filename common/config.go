@@ -37,9 +37,15 @@ type Service struct {
 	PublicKey  string `yaml:"PublicKey"`
 }
 
+type Option struct {
+	SmsUrl      string `yaml:"SmsUrl"`
+	SmsApiToken string `yaml:"SmsApiToken"`
+}
+
 type Config struct {
 	Database *CfgDb   `yaml:"Database"`
 	Service  *Service `yaml:"Service"`
+	Option   *Option  `yaml:"Option"`
 }
 
 func LoadConfig(cfgPath string) (*Config, error) {
