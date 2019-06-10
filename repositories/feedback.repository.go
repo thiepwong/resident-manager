@@ -13,6 +13,7 @@ type FeedbackRepository interface {
 	GetPagination(string, int, int, string) (*[]models.FeedbackModel, error)
 	Update(*models.Feedback) (*models.Feedback, error)
 	Delete(*models.Feedback) (bool, error)
+	GetListByEmployeeId(string, int, int, string) (*[]models.FeedbackModel, error)
 }
 
 type feedbackRepositoryContext struct {
@@ -42,7 +43,7 @@ func (r *feedbackRepositoryContext) GetPagination(sideId string, offset int, lim
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
-	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_feedback, nil
 }
 
@@ -58,4 +59,13 @@ func (r *feedbackRepositoryContext) Update(m *models.Feedback) (*models.Feedback
 
 func (r *feedbackRepositoryContext) Delete(m *models.Feedback) (bool, error) {
 	return true, r.db.Delete(m)
+}
+
+func (r *feedbackRepositoryContext) GetListByEmployeeId(employeeId string, offset int, limit int, orderBy string) (*[]models.FeedbackModel, error) {
+	if orderBy == "" {
+		orderBy = "feedback.created DESC"
+	}
+	var _feedback []models.FeedbackModel
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.employee_id=?", employeeId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	return &_feedback, nil
 }

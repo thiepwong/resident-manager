@@ -9,7 +9,7 @@ type Feedback struct {
 	Content          string   `json:"Content" sql:"content"`
 	Images           string   `json:"Images" sql:"images"`
 	Status           int      `json:"Status" sql:"status"`
-	AssignEmployeeId string   `json:"AssignEmployeeId" sql:"assigned_employee_id"`
+	AssignEmployeeId string   `json:"AssignEmployeeId" sql:"employee_id"`
 	DueDate          int      `json:"DueDate" sql:"due_date"`
 	ActualFinishDate int      `json:"ActualFinishDate" sql:"actual_finish_date"`
 	SideId           string   `json:"SideId" sql:"side_id"`
@@ -28,7 +28,7 @@ type FeedbackModel struct {
 	Content          string `json:"Content" sql:"content"`
 	Images           string `json:"Images" sql:"images"`
 	Status           int    `json:"Status" sql:"status"`
-	AssignEmployeeId string `json:"AssignEmployeeId" sql:"assigned_employee_id"`
+	AssignEmployeeId string `json:"AssignEmployeeId" sql:"employee_id"`
 	Employee         Employee
 	DueDate          int    `json:"DueDate" sql:"due_date"`
 	ActualFinishDate int    `json:"ActualFinishDate" sql:"actual_finish_date"`
@@ -38,5 +38,4 @@ type FeedbackModel struct {
 	Block            Block
 	PositionNote     string `json:"PositionNote" sql:"position_note"`
 	AssignedBy       string `json:"AssignedBy" sql:"assigned_by"`
-	CreatedBy        Employee
 }

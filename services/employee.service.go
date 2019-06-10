@@ -25,6 +25,7 @@ type EmployeeService interface {
 	SignUp(*models.SignUpModel) (interface{}, error)
 	Activate(*models.Activate) (interface{}, error)
 	SendOTP(string) (interface{}, error)
+	GetRole(string) (*models.EmployeeModel, error)
 }
 
 type employeeServiceImp struct {
@@ -233,4 +234,8 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 	}
 
 	return res.Data, e
+}
+
+func (s *employeeServiceImp) GetRole(accountId string) (*models.EmployeeModel, error) {
+	return s.employeeRepo.GetRole(accountId)
 }

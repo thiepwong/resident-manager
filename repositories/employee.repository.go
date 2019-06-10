@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/go-pg/pg"
 	"github.com/thiepwong/resident-manager/models"
 )
@@ -11,6 +13,7 @@ type EmployeeRepository interface {
 	GetAll() (*[]models.EmployeeModel, error)
 	GetPagination(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(*models.Employee) (*models.Employee, error)
+	GetRole(string) (*models.EmployeeModel, error)
 }
 
 type employeeRepositoryContext struct {
@@ -72,4 +75,16 @@ func (emp *employeeRepositoryContext) GetPagination(isDepartment bool, requestId
 
 func (emp *employeeRepositoryContext) Update(employee *models.Employee) (*models.Employee, error) {
 	return employee, nil
+}
+
+func (emp *employeeRepositoryContext) GetRole(accountId string) (*models.EmployeeModel, error) {
+	var _employee models.EmployeeModel
+	if accountId == "" {
+		return nil, errors.New("Account Id is required!")
+	}
+
+	emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.account_id =?", accountId).Select()
+
+	return &_employee, nil
+
 }

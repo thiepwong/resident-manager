@@ -22,6 +22,7 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/signup", "PostSignUp")
 	b.Handle("POST", "/activate", "PostActivate")
 	b.Handle("POST", "/send-otp/{mobile:string}", "PostSendOTP")
+	b.Handle("GET", "/get-role-by-account-id/{accountId:string}", "GetRoleById")
 	//b.Handle("GET","/detail")
 }
 
@@ -131,4 +132,16 @@ func (c *EmployeeController) PostSendOTP(mobile string) MvcResult {
 
 	return c.Result
 
+}
+
+func (c *EmployeeController) GetRoleById(accountId string) MvcResult {
+
+	r, er := c.Service.GetRole(accountId)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
+	return c.Result
 }

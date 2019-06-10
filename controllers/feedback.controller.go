@@ -18,6 +18,7 @@ func (c *FeedbackController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/list/{sideId:string}", "GetList")
 	b.Handle("GET", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
+	b.Handle("GET", "/get-by-emp/{employeeId:string}", "GetByEmp")
 	// b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
@@ -45,6 +46,25 @@ func (c *FeedbackController) GetById(id string) MvcResult {
 		return c.Result
 	}
 	rs, e := c.Service.GetById(id)
+	if e != nil {
+		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *FeedbackController) GetByEmp(employeeId string) MvcResult {
+
+	if employeeId == "" {
+		c.Result.GenerateResult(500, "Side id is required for list", nil)
+		return c.Result
+	}
+
+	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
+	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
+	_orderBy := c.Ctx.URLParam("order")
+	rs, e := c.Service.GetListByEmployeeId(employeeId, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result
