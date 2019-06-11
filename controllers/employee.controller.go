@@ -73,7 +73,7 @@ func (c *EmployeeController) PostSignin() MvcResult {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result
 	}
-	c.Result.GenerateResult(500, "", rs)
+	c.Result.GenerateResult(200, "", rs)
 	return c.Result
 
 }
