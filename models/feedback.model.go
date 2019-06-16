@@ -28,7 +28,7 @@ type FeedbackModel struct {
 	Content          string `json:"Content" sql:"content"`
 	Images           string `json:"Images" sql:"images"`
 	Status           string `json:"Status" sql:"status"`
-	AssignEmployeeId string `json:"AssignEmployeeId" sql:"assigned_employee_id"`
+	EmployeeId       string `json:"EmployeeId" sql:"assigned_employee_id"`
 	Employee         Employee
 	DueDate          string `json:"DueDate" sql:"due_date"`
 	ActualFinishDate string `json:"ActualFinishDate" sql:"actual_finish_date"`

@@ -48,7 +48,7 @@ func (r *feedbackRepositoryContext) GetPagination(sideId string, offset int, lim
 	}
 	//	var _side models.Side
 
-	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	//	r.db.Model(&_side).Where("id=?", sideId).Select()
 
 	// for i := 0; i < len(_feedback); i++ {
