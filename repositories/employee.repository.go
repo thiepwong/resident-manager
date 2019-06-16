@@ -74,7 +74,10 @@ func (emp *employeeRepositoryContext) GetPagination(isDepartment bool, requestId
 }
 
 func (emp *employeeRepositoryContext) Update(employee *models.Employee) (*models.Employee, error) {
-	return employee, nil
+	if employee.ID == "" {
+		return nil, errors.New("Id is required!")
+	}
+	return employee, emp.db.Update(employee)
 }
 
 func (emp *employeeRepositoryContext) GetRole(accountId string) (*models.EmployeeModel, error) {

@@ -53,3 +53,9 @@ type Activate struct {
 	Mobile string `json:"mobile"`
 	Code   string `json:"otpCode"`
 }
+
+type ChangePassword struct {
+	Id          string `json:"Id"`
+	OldPassword string `json:"OldPassword"`
+	NewPassword string `json:"NewPassword"`
+}

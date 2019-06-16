@@ -24,6 +24,8 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/activate", "PostActivate")
 	b.Handle("POST", "/send-otp/{mobile:string}", "PostSendOTP")
 	b.Handle("GET", "/get-role-by-account-id/{accountId:string}", "GetRoleById")
+	b.Handle("POST", "/update/{id:string}", "PostUpdate")
+	b.Handle("POST", "/change-password", "PostChangePassword")
 	//b.Handle("GET","/detail")
 }
 
@@ -145,4 +147,45 @@ func (c *EmployeeController) GetRoleById(accountId string) MvcResult {
 	c.Result.GenerateResult(200, "", r)
 
 	return c.Result
+}
+
+func (c *EmployeeController) PostUpdate(id string) MvcResult {
+	var _emp models.Employee
+	er := c.Ctx.ReadJSON(&_emp)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	r, er := c.Service.Update(&_emp)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
+
+func (c *EmployeeController) PostChangePassword() MvcResult {
+
+	var changePwd = models.ChangePassword{}
+	er := c.Ctx.ReadJSON(&changePwd)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+
+	if changePwd.Id == "" {
+		c.Result.GenerateResult(500, "Account Id is required!", nil)
+		return c.Result
+	}
+
+	r, er := c.Service.ChangePassword(&changePwd)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
 }

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_url "net/url"
+	"strings"
 
 	"github.com/thiepwong/resident-manager/common"
 
@@ -20,12 +22,13 @@ type EmployeeService interface {
 	GetById(string) *models.EmployeeModel
 	GetAll() *[]models.EmployeeModel
 	GetList(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
-	Update(string, string, string, string) *models.Employee
+	Update(*models.Employee) (*models.Employee, error)
 	Signin(string, string, string) (interface{}, error)
 	SignUp(*models.SignUpModel) (interface{}, error)
 	Activate(*models.Activate) (interface{}, error)
 	SendOTP(string) (interface{}, error)
 	GetRole(string) (*models.EmployeeModel, error)
+	ChangePassword(*models.ChangePassword) (interface{}, error)
 }
 
 type employeeServiceImp struct {
@@ -94,9 +97,9 @@ func (s *employeeServiceImp) GetList(isDept bool, requestId string, role int, pa
 	return rs, nil
 }
 
-func (s *employeeServiceImp) Update(departmentId string, name string, mobile string, accountId string) *models.Employee {
-	var _emp = &models.Employee{}
-	return _emp
+func (s *employeeServiceImp) Update(emp *models.Employee) (*models.Employee, error) {
+	return s.employeeRepo.Update(emp)
+
 }
 
 func (s *employeeServiceImp) Signin(username string, password string, system string) (interface{}, error) {
@@ -240,4 +243,38 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 
 func (s *employeeServiceImp) GetRole(accountId string) (*models.EmployeeModel, error) {
 	return s.employeeRepo.GetRole(accountId)
+}
+
+func (s *employeeServiceImp) ChangePassword(account *models.ChangePassword) (interface{}, error) {
+	form := _url.Values{}
+	form.Add("oldPassword", account.OldPassword)
+
+	form.Add("newPassword", account.NewPassword)
+	url := s.config.Option.SmsUrl + "accounts/change-password/" + account.Id + "?api_token=" + s.config.Option.SmsApiToken
+	req, e := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
+	}
+
+	return res.Data, e
 }
