@@ -1,10 +1,16 @@
 package services
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
+	"net/http"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+	"github.com/thiepwong/resident-manager/common"
 	"github.com/thiepwong/resident-manager/models"
 	"github.com/thiepwong/resident-manager/repositories"
 )
@@ -15,15 +21,18 @@ type NotificationService interface {
 	GetById(string) (*models.NotificationModel, error)
 	Update(string, string, string, int64, bool, string) (*models.Notification, error)
 	Delete(string) (bool, error)
+	SendNotification(m *models.SendNotification) (interface{}, error)
 }
 
 type notificationServiceImp struct {
 	notiRepo repositories.NotificationRepository
+	config   *common.Config
 }
 
-func NewNotificationService(repo repositories.NotificationRepository) NotificationService {
+func NewNotificationService(repo repositories.NotificationRepository, cfg *common.Config) NotificationService {
 	return &notificationServiceImp{
 		notiRepo: repo,
+		config:   cfg,
 	}
 }
 
@@ -85,4 +94,48 @@ func (s *notificationServiceImp) Update(id string, sideId string, title string, 
 
 func (s *notificationServiceImp) Delete(id string) (bool, error) {
 	return true, nil
+}
+
+func (s *notificationServiceImp) SendNotification(m *models.SendNotification) (interface{}, error) {
+	message := map[string]interface{}{
+		"to":           "/topics/" + m.Topic,
+		"collapse_key": "type_a",
+		"notification": map[string]interface{}{
+			"body":  m.Content,
+			"title": m.Title},
+		"data": map[string]interface{}{
+			"body":    m.Content,
+			"title":   m.Title,
+			"channel": m.Title,
+			"key_2":   "Value for key_2"}}
+
+	bytesRepresentation, err := json.Marshal(message)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+	req, e := http.NewRequest("POST", s.config.Option.FireBaseUrl, bytes.NewBuffer(bytesRepresentation))
+	if e != nil {
+		log.Fatal("Loi roi")
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "Application/json")
+	req.Header.Set("Authorization", s.config.Option.FireBaseToken)
+
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	json.NewDecoder(response.Body).Decode(&result)
+	if result["error"] != nil {
+		s := fmt.Sprintf("%s", result["error"])
+		return nil, errors.New(s)
+	}
+	return result, nil
 }

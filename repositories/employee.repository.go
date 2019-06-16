@@ -9,7 +9,7 @@ import (
 
 type EmployeeRepository interface {
 	Register(*models.Employee) (*models.Employee, error)
-	GetById(string) (*models.Employee, error)
+	GetById(string) (*models.EmployeeModel, error)
 	GetAll() (*[]models.EmployeeModel, error)
 	GetPagination(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(*models.Employee) (*models.Employee, error)
@@ -33,9 +33,9 @@ func (emp *employeeRepositoryContext) Register(employee *models.Employee) (*mode
 	//return employee, e
 }
 
-func (emp *employeeRepositoryContext) GetById(id string) (*models.Employee, error) {
-	var _emp models.Employee
-	emp.db.Model(&_emp).Where("id=?", id).Select()
+func (emp *employeeRepositoryContext) GetById(id string) (*models.EmployeeModel, error) {
+	var _emp models.EmployeeModel
+	emp.db.Model(&_emp).Column("employee.*", "Department", "Department.Side").Where("employee.id=?", id).Select()
 	return &_emp, nil
 	//.Join("JOIN department as d on d.id = department_id").
 }

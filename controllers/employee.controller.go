@@ -18,6 +18,7 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	c.Auth = true
 	b.Handle("POST", "/register", "PostRegister")
 	b.Handle("GET", "/list/{requestId:string}", "GetList")
+	b.Handle("GET", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/signin", "PostSignin")
 	b.Handle("POST", "/signup", "PostSignUp")
 	b.Handle("POST", "/activate", "PostActivate")
@@ -78,7 +79,7 @@ func (c *EmployeeController) PostSignin() MvcResult {
 
 }
 
-func (c *EmployeeController) GetBy(id string) MvcResult {
+func (c *EmployeeController) GetById(id string) MvcResult {
 	if id == "" {
 		return c.Result
 	}

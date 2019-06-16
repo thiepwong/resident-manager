@@ -17,7 +17,7 @@ import (
 
 type EmployeeService interface {
 	Register(string, string, string, string, string, int, string) *models.Employee
-	GetById(string) *models.Employee
+	GetById(string) *models.EmployeeModel
 	GetAll() *[]models.EmployeeModel
 	GetList(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(string, string, string, string) *models.Employee
@@ -62,7 +62,7 @@ func (s *employeeServiceImp) Register(departmentId string, name string, mobile s
 	return rs
 }
 
-func (s *employeeServiceImp) GetById(id string) *models.Employee {
+func (s *employeeServiceImp) GetById(id string) *models.EmployeeModel {
 	rs, e := s.employeeRepo.GetById(id)
 	if e != nil {
 		return nil
@@ -143,16 +143,12 @@ func (s *employeeServiceImp) Signin(username string, password string, system str
 func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) {
 	bytesRepresentation, err := json.Marshal(m)
 	url := s.config.Option.SmsUrl + "accounts/sign-up?api_token=" + s.config.Option.SmsApiToken
-	//url := "http://localhost:3333/api/v1/accounts/sign-up?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		log.Fatal("Loi roi")
 		return nil, e
 	}
-
 	req.Header.Set("Content-Type", "Application/json")
-	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
-
 	// Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -162,7 +158,6 @@ func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) 
 	}
 
 	var res models.Response
-	//	var result map[string]interface{}
 	json.NewDecoder(response.Body).Decode(&res)
 	if res.Errors != nil {
 
@@ -179,15 +174,12 @@ func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) 
 func (s *employeeServiceImp) Activate(m *models.Activate) (interface{}, error) {
 	bytesRepresentation, err := json.Marshal(m)
 	url := s.config.Option.SmsUrl + "accounts/verify-account?api_token=" + s.config.Option.SmsApiToken
-	//url := "http://localhost:3333/api/v1/accounts/verify-account?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		return nil, e
 	}
 
 	req.Header.Set("Content-Type", "Application/json")
-	//req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
-
 	// Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -224,8 +216,6 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 	}
 
 	req.Header.Set("Content-Type", "Application/json")
-	//req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
-
 	// Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
