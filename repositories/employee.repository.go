@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/go-pg/pg"
 	"github.com/thiepwong/resident-manager/models"
 )
@@ -9,8 +11,9 @@ type EmployeeRepository interface {
 	Register(*models.Employee) (*models.Employee, error)
 	GetById(string) (*models.Employee, error)
 	GetAll() (*[]models.EmployeeModel, error)
-	GetPagination(int, int, string) (*[]models.EmployeeModel, error)
+	GetPagination(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(*models.Employee) (*models.Employee, error)
+	GetRole(string) (*models.EmployeeModel, error)
 }
 
 type employeeRepositoryContext struct {
@@ -46,16 +49,42 @@ func (emp *employeeRepositoryContext) GetAll() (*[]models.EmployeeModel, error) 
 	return &_employee, nil
 }
 
-func (emp *employeeRepositoryContext) GetPagination(offset int, limit int, orderBy string) (*[]models.EmployeeModel, error) {
+func (emp *employeeRepositoryContext) GetPagination(isDepartment bool, requestId string, role int, offset int, limit int, orderBy string) (*[]models.EmployeeModel, error) {
 	var _employee []models.EmployeeModel
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
 
-	emp.db.Model(&_employee).Column("employee.*", "Department").Order(orderBy).Limit(limit).Offset(offset).Select()
+	if role != 0 {
+		if isDepartment == false {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("department.side_id=? and employee.role=?", requestId, role).Order(orderBy).Limit(limit).Offset(offset).Select()
+		} else {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.department_id=? and employee.role=?", requestId, role).Order(orderBy).Limit(limit).Offset(offset).Select()
+		}
+	} else {
+
+		if isDepartment == false {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("department.side_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+		} else {
+			emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.department_id=?", requestId).Order(orderBy).Limit(limit).Offset(offset).Select()
+		}
+	}
+
 	return &_employee, nil
 }
 
 func (emp *employeeRepositoryContext) Update(employee *models.Employee) (*models.Employee, error) {
 	return employee, nil
+}
+
+func (emp *employeeRepositoryContext) GetRole(accountId string) (*models.EmployeeModel, error) {
+	var _employee models.EmployeeModel
+	if accountId == "" {
+		return nil, errors.New("Account Id is required!")
+	}
+
+	emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.account_id =?", accountId).Select()
+
+	return &_employee, nil
+
 }

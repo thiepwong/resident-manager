@@ -26,3 +26,30 @@ type EmployeeModel struct {
 	Role         int         `json:"Role" sql:"role"`
 	Status       int         `json:"Status" sql:"status"`
 }
+
+type SignUpModel struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Mobile   string `json:"mobile"`
+	Email    string `json:"email"`
+	Fullname string `json:"fullname"`
+}
+
+type ResponseError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type Response struct {
+	ApiVersion    string      `json:"api_version"`
+	Errors        interface{} `json:"errors"`
+	StatusCode    int         `json:"statusCode"`
+	StatusMessage string      `json:"statusMessage"`
+	SystemTime    string      `json:"system_time"`
+	Data          interface{} `json:"success"`
+}
+
+type Activate struct {
+	Mobile string `json:"mobile"`
+	Code   string `json:"otpCode"`
+}

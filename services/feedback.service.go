@@ -12,8 +12,9 @@ type FeedbackService interface {
 	Add(string, string, string) (*models.Feedback, error)
 	GetById(string) (*models.FeedbackModel, error)
 	GetList(string, int, int, string) (*[]models.FeedbackModel, error)
-	Update(string, string, string, string) (*models.Feedback, error)
+	Update(string, int, string, string, int, int) (*models.Feedback, error)
 	Delete(string) (bool, error)
+	GetListByEmployeeId(string, int, int, string) (*[]models.FeedbackModel, error)
 }
 
 type feedbackServiceImp struct {
@@ -56,12 +57,14 @@ func (s *feedbackServiceImp) GetList(sideId string, pageIndex int, pageSize int,
 	return rs, nil
 }
 
-func (s *feedbackServiceImp) Update(id string, roomNo string, sideId string, blockId string) (*models.Feedback, error) {
+func (s *feedbackServiceImp) Update(id string, status int, employee string, assignBy string, dueDate int, finishDate int) (*models.Feedback, error) {
 	_feedback := &models.Feedback{
-		Id: id,
-		// RoomNo:  roomNo,
-		// SideId:  sideId,
-		// BlockId: blockId,
+		Id:               id,
+		Status:           status,
+		AssignEmployeeId: employee,
+		AssignedBy:       assignBy,
+		DueDate:          dueDate,
+		ActualFinishDate: finishDate,
 	}
 	return s.feedbackRepo.Update(_feedback)
 }
@@ -69,4 +72,17 @@ func (s *feedbackServiceImp) Update(id string, roomNo string, sideId string, blo
 func (s *feedbackServiceImp) Delete(id string) (bool, error) {
 	_feedback := &models.Feedback{Id: id}
 	return s.feedbackRepo.Delete(_feedback)
+}
+
+func (s *feedbackServiceImp) GetListByEmployeeId(employeeId string, pageIndex int, pageSize int, orderBy string) (*[]models.FeedbackModel, error) {
+	if pageIndex < 1 || pageSize < 1 {
+		return nil, errors.New("Page index or page Size is invalid! Please check!")
+	}
+	var offset int
+	offset = (pageIndex - 1) * pageSize
+	rs, e := s.feedbackRepo.GetListByEmployeeId(employeeId, offset, pageSize, orderBy)
+	if e != nil {
+		return nil, e
+	}
+	return rs, nil
 }

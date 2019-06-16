@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/go-pg/pg"
 	"github.com/thiepwong/resident-manager/models"
 )
@@ -11,6 +13,7 @@ type FeedbackRepository interface {
 	GetPagination(string, int, int, string) (*[]models.FeedbackModel, error)
 	Update(*models.Feedback) (*models.Feedback, error)
 	Delete(*models.Feedback) (bool, error)
+	GetListByEmployeeId(string, int, int, string) (*[]models.FeedbackModel, error)
 }
 
 type feedbackRepositoryContext struct {
@@ -31,12 +34,6 @@ func (r *feedbackRepositoryContext) GetById(id string) (*models.FeedbackModel, e
 
 	var _feedback models.FeedbackModel
 	r.db.Model(&_feedback).Column("room.*", "Block").Where("room.id=?", id).Select()
-	// var _side models.Side
-	// r.db.Model(&_side).Where("id=?", _feedback.SideId).Select()
-	// _feedback.Block.Side = _side
-	// if _feedback.Id == "" {
-	// 	return nil, nil
-	// }
 	return &_feedback, nil
 
 }
@@ -46,22 +43,29 @@ func (r *feedbackRepositoryContext) GetPagination(sideId string, offset int, lim
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
-	//	var _side models.Side
-
-	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
-	//	r.db.Model(&_side).Where("id=?", sideId).Select()
-
-	// for i := 0; i < len(_feedback); i++ {
-	// 	_feedback[i].Block.Side = _side
-	// }
-
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_feedback, nil
 }
 
 func (r *feedbackRepositoryContext) Update(m *models.Feedback) (*models.Feedback, error) {
-	return m, r.db.Update(m)
+
+	res, err := r.db.Model(m).Set("status = ?, assigned_employee_id=? , assigned_by =? , due_date=? , actual_finish_date=?", m.Status, m.AssignEmployeeId, m.AssignedBy, m.DueDate, m.ActualFinishDate).Where("id = ?", m.Id).Update()
+	if res == nil {
+		return nil, errors.New("Feedback id is not found!")
+	}
+	r.db.Model(m).Where("id=?", m.Id).Select()
+	return m, err
 }
 
 func (r *feedbackRepositoryContext) Delete(m *models.Feedback) (bool, error) {
 	return true, r.db.Delete(m)
+}
+
+func (r *feedbackRepositoryContext) GetListByEmployeeId(employeeId string, offset int, limit int, orderBy string) (*[]models.FeedbackModel, error) {
+	if orderBy == "" {
+		orderBy = "feedback.created DESC"
+	}
+	var _feedback []models.FeedbackModel
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.employee_id=?", employeeId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	return &_feedback, nil
 }

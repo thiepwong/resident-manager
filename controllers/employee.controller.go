@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/thiepwong/resident-manager/services"
 
 	"github.com/kataras/iris/mvc"
 	"github.com/thiepwong/resident-manager/models"
-	"github.com/thiepwong/smartid/pkg/logger"
 )
 
 type EmployeeController struct {
@@ -19,8 +17,12 @@ type EmployeeController struct {
 func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	c.Auth = true
 	b.Handle("POST", "/register", "PostRegister")
-	b.Handle("GET", "/list", "GetList")
+	b.Handle("GET", "/list/{requestId:string}", "GetList")
 	b.Handle("POST", "/signin", "PostSignin")
+	b.Handle("POST", "/signup", "PostSignUp")
+	b.Handle("POST", "/activate", "PostActivate")
+	b.Handle("POST", "/send-otp/{mobile:string}", "PostSendOTP")
+	b.Handle("GET", "/get-role-by-account-id/{accountId:string}", "GetRoleById")
 	//b.Handle("GET","/detail")
 }
 
@@ -29,36 +31,27 @@ func (c *EmployeeController) PostRegister() MvcResult {
 	// _token := c.Ctx.GetHeader("Authorization")
 	er := c.Ctx.ReadJSON(&_signupData)
 	if er != nil {
-		logger.LogErr.Println(er)
 		return c.Result
 	}
-
-	// token, err := jwt.Parse(_token, func(token *jwt.Token) (interface{}, error) {
-	// 	// Don't forget to validate the alg is what you expect:
-	// 	if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-	// 		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-	// 	}
-
-	// 	// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-	// 	return token, nil
-	// })
-
-	// if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-	// 	fmt.Println(claims["foo"], claims["nbf"])
-	// } else {
-	// 	fmt.Println(err)
-	// }
 
 	r := c.Service.Register(_signupData.DepartmentId, _signupData.Name, _signupData.Mobile, _signupData.Address, _signupData.AccountId, _signupData.Role, "")
 	c.Result.GenerateResult(200, "", r)
 	return c.Result
 }
 
-func (c *EmployeeController) GetList() MvcResult {
+func (c *EmployeeController) GetList(requestId string) MvcResult {
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
-	rs, e := c.Service.GetList(_pageIndex, _pageSize, _orderBy)
+	_isDept, e := strconv.Atoi(c.Ctx.URLParam("type"))
+	_role, e := strconv.Atoi(c.Ctx.URLParam("role"))
+	var _isDeptmentId bool
+	if _isDept == 1 {
+		_isDeptmentId = true
+	} else {
+		_isDeptmentId = false
+	}
+	rs, e := c.Service.GetList(_isDeptmentId, requestId, _role, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, "", e)
 		return c.Result
@@ -77,10 +70,10 @@ func (c *EmployeeController) PostSignin() MvcResult {
 
 	rs, e := c.Service.Signin(_login.Username, _login.Password, _login.System)
 	if e != nil {
-		c.Result.GenerateResult(500, "", e)
+		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result
 	}
-	c.Result.GenerateResult(500, "", rs)
+	c.Result.GenerateResult(200, "", rs)
 	return c.Result
 
 }
@@ -90,7 +83,65 @@ func (c *EmployeeController) GetBy(id string) MvcResult {
 		return c.Result
 	}
 	rs := c.Service.GetById(id)
-	fmt.Printf("Da goi den ID %s", id)
 	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *EmployeeController) PostSignUp() MvcResult {
+	var signup = models.SignUpModel{}
+	er := c.Ctx.ReadJSON(&signup)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	r, er := c.Service.SignUp(&signup)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
+
+func (c *EmployeeController) PostActivate() MvcResult {
+	var activate = models.Activate{}
+	er := c.Ctx.ReadJSON(&activate)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	r, er := c.Service.Activate(&activate)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
+
+func (c *EmployeeController) PostSendOTP(mobile string) MvcResult {
+
+	r, er := c.Service.SendOTP(mobile)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
+	return c.Result
+
+}
+
+func (c *EmployeeController) GetRoleById(accountId string) MvcResult {
+
+	r, er := c.Service.GetRole(accountId)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
 	return c.Result
 }

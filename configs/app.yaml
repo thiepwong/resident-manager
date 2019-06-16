@@ -1,5 +1,5 @@
 Service:
-  Host: 127.0.0.1
+  Host: 192.168.1.17
   Port: 8080
   SSL: false
   PrivateKey:
@@ -15,3 +15,7 @@ Database:
     Schema:
   Redis:
   Mongo:
+
+Option:
+  SmsUrl: http://171.244.49.164:3333/api/v1/
+  SmsApiToken: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ
