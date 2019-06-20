@@ -92,4 +92,11 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	feedback.Register(feedbackSrv, mvcResult)
 	feedback.Handle(new(controllers.FeedbackController))
 
+	//Register Resident Controller
+	residentRepo := repositories.NewResidentRepository(pg)
+	residentSrv := services.NewResidentService(residentRepo)
+	resident := mvc.New(app.Party("/resident", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	resident.Register(residentSrv, mvcResult)
+	resident.Handle(new(controllers.ResidentController))
+
 }
