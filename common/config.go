@@ -38,8 +38,10 @@ type Service struct {
 }
 
 type Option struct {
-	SmsUrl      string `yaml:"SmsUrl"`
-	SmsApiToken string `yaml:"SmsApiToken"`
+	SmsUrl        string `yaml:"SmsUrl"`
+	SmsApiToken   string `yaml:"SmsApiToken"`
+	FireBaseUrl   string `yaml:"FireBaseUrl"`
+	FireBaseToken string `yaml:"FireBaseToken"`
 }
 
 type Config struct {

@@ -19,6 +19,7 @@ func (c *NotificationController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
+	b.Handle("POST", "/send", "PostSendNotification")
 }
 
 func (c *NotificationController) GetList(sideId string) MvcResult {
@@ -79,5 +80,24 @@ func (c *NotificationController) PostUpdate(id string) MvcResult {
 	}
 
 	c.Result.GenerateResult(200, "", r)
+	return c.Result
+}
+
+func (c *NotificationController) PostSendNotification() MvcResult {
+
+	_noti := &models.SendNotification{}
+	e := c.Ctx.ReadJSON(_noti)
+	if e != nil {
+		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
+
+	r, er := c.Service.SendNotification(_noti)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
 	return c.Result
 }

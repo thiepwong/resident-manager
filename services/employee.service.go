@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_url "net/url"
+	"strings"
 
 	"github.com/thiepwong/resident-manager/common"
 
@@ -17,15 +19,16 @@ import (
 
 type EmployeeService interface {
 	Register(string, string, string, string, string, int, string) *models.Employee
-	GetById(string) *models.Employee
+	GetById(string) *models.EmployeeModel
 	GetAll() *[]models.EmployeeModel
 	GetList(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
-	Update(string, string, string, string) *models.Employee
+	Update(*models.Employee) (*models.Employee, error)
 	Signin(string, string, string) (interface{}, error)
 	SignUp(*models.SignUpModel) (interface{}, error)
 	Activate(*models.Activate) (interface{}, error)
 	SendOTP(string) (interface{}, error)
 	GetRole(string) (*models.EmployeeModel, error)
+	ChangePassword(*models.ChangePassword) (interface{}, error)
 }
 
 type employeeServiceImp struct {
@@ -62,7 +65,7 @@ func (s *employeeServiceImp) Register(departmentId string, name string, mobile s
 	return rs
 }
 
-func (s *employeeServiceImp) GetById(id string) *models.Employee {
+func (s *employeeServiceImp) GetById(id string) *models.EmployeeModel {
 	rs, e := s.employeeRepo.GetById(id)
 	if e != nil {
 		return nil
@@ -92,9 +95,9 @@ func (s *employeeServiceImp) GetList(isDept bool, requestId string, role int, pa
 	return rs, nil
 }
 
-func (s *employeeServiceImp) Update(departmentId string, name string, mobile string, accountId string) *models.Employee {
-	var _emp = &models.Employee{}
-	return _emp
+func (s *employeeServiceImp) Update(emp *models.Employee) (*models.Employee, error) {
+	return s.employeeRepo.Update(emp)
+
 }
 
 func (s *employeeServiceImp) Signin(username string, password string, system string) (interface{}, error) {
@@ -141,16 +144,12 @@ func (s *employeeServiceImp) Signin(username string, password string, system str
 func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) {
 	bytesRepresentation, err := json.Marshal(m)
 	url := s.config.Option.SmsUrl + "accounts/sign-up?api_token=" + s.config.Option.SmsApiToken
-	//url := "http://localhost:3333/api/v1/accounts/sign-up?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		log.Fatal("Loi roi")
 		return nil, e
 	}
-
 	req.Header.Set("Content-Type", "Application/json")
-	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
-
 	// Do the request
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -160,7 +159,6 @@ func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) 
 	}
 
 	var res models.Response
-	//	var result map[string]interface{}
 	json.NewDecoder(response.Body).Decode(&res)
 	if res.Errors != nil {
 
@@ -177,7 +175,6 @@ func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) 
 func (s *employeeServiceImp) Activate(m *models.Activate) (interface{}, error) {
 	bytesRepresentation, err := json.Marshal(m)
 	url := s.config.Option.SmsUrl + "accounts/verify-account?api_token=" + s.config.Option.SmsApiToken
-	//url := "http://localhost:3333/api/v1/accounts/verify-account?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		return nil, e
@@ -248,4 +245,38 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 
 func (s *employeeServiceImp) GetRole(accountId string) (*models.EmployeeModel, error) {
 	return s.employeeRepo.GetRole(accountId)
+}
+
+func (s *employeeServiceImp) ChangePassword(account *models.ChangePassword) (interface{}, error) {
+	form := _url.Values{}
+	form.Add("oldPassword", account.OldPassword)
+
+	form.Add("newPassword", account.NewPassword)
+	url := s.config.Option.SmsUrl + "accounts/change-password/" + account.Id + "?api_token=" + s.config.Option.SmsApiToken
+	req, e := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
+	}
+
+	return res.Data, e
 }

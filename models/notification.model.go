@@ -20,3 +20,9 @@ type NotificationModel struct {
 	SendResult  bool   `json:"SendResult" sql:"send_success"`
 	Content     string `json:"Content" sql:"body"`
 }
+
+type SendNotification struct {
+	Topic   string `json:"Topic"`
+	Title   string `json:"Title"`
+	Content string `json:"Content"`
+}

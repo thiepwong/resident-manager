@@ -45,7 +45,7 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 
 	//Register Notification Controller
 	notiRep := repositories.NewNotificationRepository(pg)
-	notiSrv := services.NewNotificationService(notiRep)
+	notiSrv := services.NewNotificationService(notiRep, config)
 	noti := mvc.New(app.Party("/notification", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	noti.Register(notiSrv, mvcResult)
 	noti.Handle(new(controllers.NotificationController))
@@ -91,5 +91,12 @@ func RegisterRoute(app *iris.Application, cors context.Handler, config *common.C
 	feedback := mvc.New(app.Party("/feedback", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
 	feedback.Register(feedbackSrv, mvcResult)
 	feedback.Handle(new(controllers.FeedbackController))
+
+	//Register Resident Controller
+	residentRepo := repositories.NewResidentRepository(pg)
+	residentSrv := services.NewResidentService(residentRepo)
+	resident := mvc.New(app.Party("/resident", cors, middlewares.Authorization).AllowMethods(iris.MethodOptions, iris.MethodGet, iris.MethodPost))
+	resident.Register(residentSrv, mvcResult)
+	resident.Handle(new(controllers.ResidentController))
 
 }

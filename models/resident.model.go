@@ -15,7 +15,7 @@ type ResidentRoom struct {
 	ResidentId string   `json:"ResidentId" sql:"resident_id"`
 	Resident   Resident
 	RoomId     string `json:"RoomId" sql:"room_id"`
-	Room       Room
-	Active     bool `json:"RoomId" sql:"room_id"`
+	Room       RoomModel
+	Active     bool `json:"Active" sql:"active"`
 	Deleted    bool `json:"Deleted" sql:"deleted"`
 }
