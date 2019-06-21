@@ -71,13 +71,11 @@ func (s *employeeServiceImp) GetById(id string) *models.Employee {
 }
 
 func (s *employeeServiceImp) GetAll() *[]models.EmployeeModel {
-
 	rs, e := s.employeeRepo.GetAll()
 	if e != nil {
 		return nil
 	}
 	return rs
-
 }
 
 func (s *employeeServiceImp) GetList(isDept bool, requestId string, role int, pageIndex int, pageSize int, orderBy string) (*[]models.EmployeeModel, error) {
@@ -109,14 +107,13 @@ func (s *employeeServiceImp) Signin(username string, password string, system str
 
 	bytesRepresentation, err := json.Marshal(message)
 	url := s.config.Option.SmsUrl + "accounts/sign-in?api_token=" + s.config.Option.SmsApiToken
-	//url := "http://localhost:3333/api/v1/accounts/sign-in?api_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJTUElOIFYxIiwiaWF0IjoxNTQ1MjEwNDkwNzQxLCJleHAiOjE1NDUyNDY0OTA3NDEsInN5cyI6IlBBUktJTkcifQ.MnSeQKn34b8x-yoXnnndxw1FaQf2f1Z2XDsYgYqvmOUmF0rMVsK1lWDsDSGaVelZQ7lYW3o4aFvI7MrdFGTlxj0g333z_lHYoR2YapvZyAPseLfF7NHthE72JbcAd9L6ynyjGP5sBpjQGkt5o45dppnWZQj4_5GvetsrUeSZhMQ"
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
 	if e != nil {
 		return nil, e
 	}
 
 	req.Header.Set("Content-Type", "Application/json")
-	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+	//req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
 
 	// Do the request
 	client := &http.Client{}
@@ -128,10 +125,14 @@ func (s *employeeServiceImp) Signin(username string, password string, system str
 
 	var res models.Response
 	json.NewDecoder(response.Body).Decode(&res)
-	if res.Errors.Message == "" {
-		e = nil
-	} else {
-		e = errors.New(res.Errors.Message)
+
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
 	}
 
 	return res.Data, e
@@ -161,11 +162,13 @@ func (s *employeeServiceImp) SignUp(m *models.SignUpModel) (interface{}, error) 
 	var res models.Response
 	//	var result map[string]interface{}
 	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
 
-	if res.Errors.Code == "" {
-		e = nil
-	} else {
-		e = errors.New(res.Errors.Message)
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
 	}
 
 	return res.Data, e
@@ -181,7 +184,7 @@ func (s *employeeServiceImp) Activate(m *models.Activate) (interface{}, error) {
 	}
 
 	req.Header.Set("Content-Type", "Application/json")
-	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+	//req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
 
 	// Do the request
 	client := &http.Client{}
@@ -193,10 +196,14 @@ func (s *employeeServiceImp) Activate(m *models.Activate) (interface{}, error) {
 
 	var res models.Response
 	json.NewDecoder(response.Body).Decode(&res)
-	if res.Errors.Message == "" {
-		e = nil
-	} else {
-		e = errors.New(res.Errors.Message)
+
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
 	}
 
 	return res.Data, e
@@ -215,7 +222,7 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 	}
 
 	req.Header.Set("Content-Type", "Application/json")
-	req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
+	//req.Header.Set("Authorization", "key=AAAAtc-5Fto:APA91bFxm1mLGKf9rGaCDu-f6K8cWOqWEO8qR9XYdkwsi4Bng75y9XxeCY6rySPIzpY1EfveXlgWIzTfpnn49TNmjj2pzq7TlcVOuNVB5fu96cDtN59RSXHvEaqIyXHEOfiYHtaSoogm")
 
 	// Do the request
 	client := &http.Client{}
@@ -227,10 +234,13 @@ func (s *employeeServiceImp) SendOTP(mobile string) (interface{}, error) {
 
 	var res models.Response
 	json.NewDecoder(response.Body).Decode(&res)
-	if res.Errors.Message == "" {
-		e = nil
-	} else {
-		e = errors.New(res.Errors.Message)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
 	}
 
 	return res.Data, e

@@ -33,7 +33,7 @@ func (r *feedbackRepositoryContext) Add(m *models.Feedback) (*models.Feedback, e
 func (r *feedbackRepositoryContext) GetById(id string) (*models.FeedbackModel, error) {
 
 	var _feedback models.FeedbackModel
-	r.db.Model(&_feedback).Column("room.*", "Block").Where("room.id=?", id).Select()
+	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.id=?", id).Select()
 	return &_feedback, nil
 
 }
@@ -49,7 +49,7 @@ func (r *feedbackRepositoryContext) GetPagination(sideId string, offset int, lim
 
 func (r *feedbackRepositoryContext) Update(m *models.Feedback) (*models.Feedback, error) {
 
-	res, err := r.db.Model(m).Set("status = ?, assigned_employee_id=? , assigned_by =? , due_date=? , actual_finish_date=?", m.Status, m.AssignEmployeeId, m.AssignedBy, m.DueDate, m.ActualFinishDate).Where("id = ?", m.Id).Update()
+	res, err := r.db.Model(m).Set("status = ?, employee_id=? , assigned_by =? , due_date=? , actual_finish_date=?", m.Status, m.AssignEmployeeId, m.AssignedBy, m.DueDate, m.ActualFinishDate).Where("id = ?", m.Id).Update()
 	if res == nil {
 		return nil, errors.New("Feedback id is not found!")
 	}

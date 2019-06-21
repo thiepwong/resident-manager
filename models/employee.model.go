@@ -41,12 +41,12 @@ type ResponseError struct {
 }
 
 type Response struct {
-	ApiVersion    string        `json:"api_version"`
-	Errors        ResponseError `json:"errors"`
-	StatusCode    int           `json:"statusCode"`
-	StatusMessage string        `json:"statusMessage"`
-	SystemTime    string        `json:"system_time"`
-	Data          interface{}   `json:"success"`
+	ApiVersion    string      `json:"api_version"`
+	Errors        interface{} `json:"errors"`
+	StatusCode    int         `json:"statusCode"`
+	StatusMessage string      `json:"statusMessage"`
+	SystemTime    string      `json:"system_time"`
+	Data          interface{} `json:"success"`
 }
 
 type Activate struct {
