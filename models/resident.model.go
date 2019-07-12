@@ -19,3 +19,9 @@ type ResidentRoom struct {
 	Active     bool `json:"Active" sql:"active"`
 	Deleted    bool `json:"Deleted" sql:"deleted"`
 }
+
+type ResidentModel struct {
+	Resident       Resident `json:"Resident"`
+	RoomId         string   `json:"RoomId"`
+	ResidentRoomId string   `json:"ResidentRoomId"`
+}

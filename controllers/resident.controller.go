@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/kataras/iris/mvc"
+	"github.com/thiepwong/resident-manager/models"
 	"github.com/thiepwong/resident-manager/services"
 )
 
@@ -15,6 +16,9 @@ type ResidentController struct {
 func (c *ResidentController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/list/{sideId:string}", "GetList")
 	b.Handle("GET", "/detail/{id:string}", "GetById")
+	b.Handle("POST", "/add", "PostAdd")
+	b.Handle("POST", "/update", "PostUpdate")
+	b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
 func (c *ResidentController) GetById(id string) MvcResult {
@@ -44,6 +48,52 @@ func (c *ResidentController) GetList(sideId string) MvcResult {
 	rs, e := c.Service.GetList(sideId, _search, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *ResidentController) PostAdd() MvcResult {
+	var _resModel models.ResidentModel
+	err := c.Ctx.ReadJSON(&_resModel)
+	if err != nil {
+		c.Result.GenerateResult(500, err.Error(), err)
+		return c.Result
+	}
+	rs, err := c.Service.Add(&_resModel)
+	if err != nil {
+		c.Result.GenerateResult(500, err.Error(), err)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *ResidentController) PostUpdate() MvcResult {
+	var _resModel models.ResidentModel
+	err := c.Ctx.ReadJSON(&_resModel)
+	if err != nil {
+		c.Result.GenerateResult(500, err.Error(), err)
+		return c.Result
+	}
+	rs, err := c.Service.Update(&_resModel)
+	if err != nil {
+		c.Result.GenerateResult(500, err.Error(), err)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", rs)
+	return c.Result
+}
+
+func (c *ResidentController) PostDelete(id string) MvcResult {
+	if id == "" {
+		c.Result.GenerateResult(500, "Id is invalid!", nil)
+		return c.Result
+	}
+	rs, err := c.Service.Delete(id)
+	if err != nil {
+		c.Result.GenerateResult(500, err.Error(), err)
 		return c.Result
 	}
 	c.Result.GenerateResult(200, "", rs)
