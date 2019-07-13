@@ -284,7 +284,7 @@ func (s *employeeServiceImp) ChangePassword(account *models.ChangePassword) (int
 }
 
 func (s *employeeServiceImp) ResetPassword(m *models.ResetPassword) (interface{}, error) {
-	url := "http://localhost:3333/api/v1/accounts/forgot-password?api_token=" + s.config.Option.SmsApiToken
+	url := s.config.Option.SmsUrl + "accounts/forgot-password?api_token=" + s.config.Option.SmsApiToken
 	//url := s.config.Option.SmsUrl + "accounts/change-password?api_token=" + s.config.Option.SmsApiToken
 	bytesRepresentation, err := json.Marshal(m)
 	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
@@ -319,7 +319,7 @@ func (s *employeeServiceImp) ResetPassword(m *models.ResetPassword) (interface{}
 func (s *employeeServiceImp) ActiveAccount(id string) (interface{}, error) {
 	form := _url.Values{}
 	form.Add("id", id)
-	url := "http://localhost:3333/api/v1/accounts/internal-active/" + id + "?api_token=" + s.config.Option.SmsApiToken
+	url := s.config.Option.SmsUrl + "accounts/internal-active/" + id + "?api_token=" + s.config.Option.SmsApiToken
 	req, e := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
 	if e != nil {
 		return nil, e
