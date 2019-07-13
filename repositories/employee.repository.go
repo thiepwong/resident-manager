@@ -86,7 +86,7 @@ func (emp *employeeRepositoryContext) GetRole(accountId string) (*models.Employe
 		return nil, errors.New("Account Id is required!")
 	}
 
-	emp.db.Model(&_employee).Column("employee.*", "Department").Where("employee.account_id =?", accountId).Select()
+	emp.db.Model(&_employee).Column("employee.*", "Department", "Department.Side").Where("employee.account_id =?", accountId).Select()
 
 	return &_employee, nil
 

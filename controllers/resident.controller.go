@@ -19,6 +19,7 @@ func (c *ResidentController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("POST", "/update", "PostUpdate")
 	b.Handle("POST", "/delete/{id:string}", "PostDelete")
+
 }
 
 func (c *ResidentController) GetById(id string) MvcResult {

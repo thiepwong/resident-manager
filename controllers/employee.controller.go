@@ -26,7 +26,8 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/get-role-by-account-id/{accountId:string}", "GetRoleById")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 	b.Handle("POST", "/change-password", "PostChangePassword")
-	//b.Handle("GET","/detail")
+	b.Handle("POST", "/reset-password", "PostResetPassword")
+	b.Handle("POST", "/internal-active/{id:string}", "PostInternalActive")
 }
 
 func (c *EmployeeController) PostRegister() MvcResult {
@@ -181,6 +182,47 @@ func (c *EmployeeController) PostChangePassword() MvcResult {
 	}
 
 	r, er := c.Service.ChangePassword(&changePwd)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
+
+func (c *EmployeeController) PostResetPassword() MvcResult {
+
+	var changePwd = models.ResetPassword{}
+	er := c.Ctx.ReadJSON(&changePwd)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+
+	if changePwd.OTP == "" || changePwd.Mobile == "" || changePwd.NewPassword == "" {
+		c.Result.GenerateResult(500, "OTP code is required!", nil)
+		return c.Result
+	}
+
+	r, er := c.Service.ResetPassword(&changePwd)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+	return c.Result
+
+}
+
+func (c *EmployeeController) PostInternalActive(id string) MvcResult {
+
+	if id == "" {
+		c.Result.GenerateResult(500, "Account ID is required!", nil)
+		return c.Result
+	}
+
+	r, er := c.Service.ActiveAccount(id)
 	if er != nil {
 		c.Result.GenerateResult(500, er.Error(), er)
 		return c.Result

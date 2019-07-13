@@ -29,6 +29,8 @@ type EmployeeService interface {
 	SendOTP(string) (interface{}, error)
 	GetRole(string) (*models.EmployeeModel, error)
 	ChangePassword(*models.ChangePassword) (interface{}, error)
+	ResetPassword(*models.ResetPassword) (interface{}, error)
+	ActiveAccount(string) (interface{}, error)
 }
 
 type employeeServiceImp struct {
@@ -253,6 +255,71 @@ func (s *employeeServiceImp) ChangePassword(account *models.ChangePassword) (int
 
 	form.Add("newPassword", account.NewPassword)
 	url := s.config.Option.SmsUrl + "accounts/change-password/" + account.Id + "?api_token=" + s.config.Option.SmsApiToken
+	req, e := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
+	}
+
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) ResetPassword(m *models.ResetPassword) (interface{}, error) {
+	url := "http://localhost:3333/api/v1/accounts/forgot-password?api_token=" + s.config.Option.SmsApiToken
+	//url := s.config.Option.SmsUrl + "accounts/change-password?api_token=" + s.config.Option.SmsApiToken
+	bytesRepresentation, err := json.Marshal(m)
+	req, e := http.NewRequest("POST", url, bytes.NewBuffer(bytesRepresentation))
+
+	if e != nil {
+		return nil, e
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
+	}
+
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) ActiveAccount(id string) (interface{}, error) {
+	form := _url.Values{}
+	form.Add("id", id)
+	url := "http://localhost:3333/api/v1/accounts/internal-active/" + id + "?api_token=" + s.config.Option.SmsApiToken
 	req, e := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
 	if e != nil {
 		return nil, e
