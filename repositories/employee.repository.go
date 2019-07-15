@@ -14,6 +14,7 @@ type EmployeeRepository interface {
 	GetPagination(bool, string, int, int, int, string) (*[]models.EmployeeModel, error)
 	Update(*models.Employee) (*models.Employee, error)
 	GetRole(string) (*models.EmployeeModel, error)
+	Check(string) (bool, error)
 }
 
 type employeeRepositoryContext struct {
@@ -90,4 +91,13 @@ func (emp *employeeRepositoryContext) GetRole(accountId string) (*models.Employe
 
 	return &_employee, nil
 
+}
+
+func (emp *employeeRepositoryContext) Check(mobile string) (bool, error) {
+	var _emp models.Employee
+	emp.db.Model(&_emp).Column("id").Where("mobile=?", mobile).Where("status>?", 0).Select()
+	if _emp.ID == "" {
+		return false, errors.New("This mobile number is not registered!")
+	}
+	return true, nil
 }

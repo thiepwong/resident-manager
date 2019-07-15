@@ -31,6 +31,7 @@ type EmployeeService interface {
 	ChangePassword(*models.ChangePassword) (interface{}, error)
 	ResetPassword(*models.ResetPassword) (interface{}, error)
 	ActiveAccount(string) (interface{}, error)
+	Check(string) (bool, error)
 }
 
 type employeeServiceImp struct {
@@ -346,4 +347,8 @@ func (s *employeeServiceImp) ActiveAccount(id string) (interface{}, error) {
 	}
 
 	return res.Data, e
+}
+
+func (s *employeeServiceImp) Check(mobile string) (bool, error) {
+	return s.employeeRepo.Check(mobile)
 }
