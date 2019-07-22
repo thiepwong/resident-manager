@@ -10,7 +10,7 @@ import (
 
 type ResidentService interface {
 	GetById(string) (*models.ResidentRoom, error)
-	GetList(string, string, int, int, string) (*[]models.ResidentRoom, error)
+	GetList(string, string, string, string, string, string, string, int, int, string) (*[]models.ResidentRoom, error)
 	Add(*models.ResidentModel) (*models.ResidentRoom, error)
 	Update(*models.ResidentModel) (*models.ResidentRoom, error)
 	Delete(residentRoomId string) (bool, error)
@@ -30,13 +30,13 @@ func (s *residentServiceImp) GetById(id string) (*models.ResidentRoom, error) {
 	return s.residentRepo.GetById(id)
 }
 
-func (s *residentServiceImp) GetList(sideId string, search string, pageIndex int, pageSize int, pageOrder string) (*[]models.ResidentRoom, error) {
+func (s *residentServiceImp) GetList(sideId string, search string, block string, room string, name string, mobile string, email string, pageIndex int, pageSize int, pageOrder string) (*[]models.ResidentRoom, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	return s.residentRepo.GetPagination(sideId, search, offset, pageSize, pageOrder)
+	return s.residentRepo.GetPagination(sideId, search, block, room, name, mobile, email, offset, pageSize, pageOrder)
 }
 
 func (s *residentServiceImp) Add(res *models.ResidentModel) (*models.ResidentRoom, error) {

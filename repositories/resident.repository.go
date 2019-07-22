@@ -2,13 +2,14 @@ package repositories
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/go-pg/pg"
 	"github.com/thiepwong/resident-manager/models"
 )
 
 type ResidentRepository interface {
-	GetPagination(string, string, int, int, string) (*[]models.ResidentRoom, error)
+	GetPagination(string, string, string, string, string, string, string, int, int, string) (*[]models.ResidentRoom, error)
 	GetById(string) (*models.ResidentRoom, error)
 	Add(*models.Resident, *models.ResidentRoom) (*models.ResidentRoom, error)
 	Update(*models.Resident, *models.ResidentRoom) (*models.ResidentRoom, error)
@@ -25,19 +26,31 @@ func NewResidentRepository(db *pg.DB) *residentRepositoryContext {
 	}
 }
 
-func (r *residentRepositoryContext) GetPagination(sideId string, search string, offset int, limit int, pageOrder string) (*[]models.ResidentRoom, error) {
+func (r *residentRepositoryContext) GetPagination(sideId string, search string, block string, room string, name string, mobile string, email string, offset int, limit int, pageOrder string) (*[]models.ResidentRoom, error) {
 
 	if pageOrder == "" {
 		pageOrder = "id ASC"
 	}
 
-	var _room []models.Room
+	var _room []models.RoomModel
 	var _resident []models.ResidentRoom
+	if room == "" {
+		r.db.Model(&_room).Column("room.*", "Block").Where("room.side_id=?", sideId).Select()
 
-	r.db.Model(&_room).Column("room.id").Where("room.side_id=?", sideId).Select()
+	} else {
+		r.db.Model(&_room).Column("room.*", "Block").Where("room.side_id=?", sideId).Where("room.room_no LIKE ?", "%"+room+"%").Select()
+
+	}
 	var _r []string
 	for i := 0; i < len(_room); i++ {
-		_r = append(_r, _room[i].Id)
+		if block == "" {
+			_r = append(_r, _room[i].Id)
+		} else {
+			if strings.Contains(_room[i].Block.Name, block) == true {
+				_r = append(_r, _room[i].Id)
+			}
+		}
+
 	}
 	//var levels = []string{"ROOM0000001", "ROOM0000002", "ROOM0000003"}
 	r.db.Model(&_resident).Column("resident_room_mapping.*", "Resident", "Room", "Room.Block.Side", "Room.Side", "Room.Block").Where("resident_room_mapping.room_id in (?)", pg.In(_r)).Where("resident_room_mapping.deleted <>?", true).Order(pageOrder).Limit(limit).Offset(offset).Select()

@@ -46,7 +46,13 @@ func (c *ResidentController) GetList(sideId string) MvcResult {
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
 	_search := c.Ctx.URLParam("search")
-	rs, e := c.Service.GetList(sideId, _search, _pageIndex, _pageSize, _orderBy)
+	_block := c.Ctx.URLParam("block")
+	_room := c.Ctx.URLParam("room")
+	_name := c.Ctx.URLParam("name")
+	_mobile := c.Ctx.URLParam("mobile")
+	_email := c.Ctx.URLParam("email")
+
+	rs, e := c.Service.GetList(sideId, _search, _block, _room, _name, _mobile, _email, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result
