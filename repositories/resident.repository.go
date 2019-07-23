@@ -52,8 +52,36 @@ func (r *residentRepositoryContext) GetPagination(sideId string, search string, 
 		}
 
 	}
-	//var levels = []string{"ROOM0000001", "ROOM0000002", "ROOM0000003"}
-	r.db.Model(&_resident).Column("resident_room_mapping.*", "Resident", "Room", "Room.Block.Side", "Room.Side", "Room.Block").Where("resident_room_mapping.room_id in (?)", pg.In(_r)).Where("resident_room_mapping.deleted <>?", true).Order(pageOrder).Limit(limit).Offset(offset).Select()
+
+	var _fullname []models.Resident
+	var _mobile []models.Resident
+	var _email []models.Resident
+	if name != "" {
+		r.db.Model(&_fullname).Column("resident.*").Where("resident.full_name LIKE ?", "%"+name+"%").Select()
+	}
+
+	if mobile != "" {
+		r.db.Model(&_mobile).Column("resident.*").Where("resident.phone_no LIKE ?", "%"+mobile+"%").Select()
+	}
+
+	if email != "" {
+		r.db.Model(&_email).Column("resident.*").Where("resident.email LIKE ?", "%"+email+"%").Select()
+	}
+
+	_fullname = append(_fullname, _mobile...)
+	_fullname = append(_fullname, _email...)
+
+	var _rid []string
+	for i := 0; i < len(_fullname); i++ {
+		_rid = append(_rid, _fullname[i].Id)
+	}
+
+	if len(_fullname) > 0 {
+		r.db.Model(&_resident).Column("resident_room_mapping.*", "Resident", "Room", "Room.Block.Side", "Room.Side", "Room.Block").Where("resident_room_mapping.room_id in (?)", pg.In(_r)).Where("resident_room_mapping.deleted <>?", true).Where("resident_room_mapping.resident_id in (?)", pg.In(_rid)).Order(pageOrder).Limit(limit).Offset(offset).Select()
+
+	} else if name == "" && mobile == "" && email == "" {
+		r.db.Model(&_resident).Column("resident_room_mapping.*", "Resident", "Room", "Room.Block.Side", "Room.Side", "Room.Block").Where("resident_room_mapping.room_id in (?)", pg.In(_r)).Where("resident_room_mapping.deleted <>?", true).Order(pageOrder).Limit(limit).Offset(offset).Select()
+	}
 
 	return &_resident, nil
 }

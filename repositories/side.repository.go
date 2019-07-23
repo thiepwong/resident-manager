@@ -46,5 +46,9 @@ func (r *sideRepositoryContext) Update(m *models.Side) (*models.Side, error) {
 }
 
 func (r *sideRepositoryContext) Delete(m *models.Side) (bool, error) {
-	return true, r.db.Delete(m)
+	err := r.db.Delete(m)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

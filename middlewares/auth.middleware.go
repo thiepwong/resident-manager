@@ -9,9 +9,14 @@ import (
 )
 
 func Authorization(c iris.Context) {
+
+	if c.Request().Method == "OPTIONS" {
+		return
+	}
+
 	_token := c.GetHeader("Authorization")
 	if _token == "" {
-		c.Next()
+		//c.Next()
 		//	return
 	}
 	var _auth = &models.Auth{
