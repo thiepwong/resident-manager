@@ -93,7 +93,8 @@ func (s *notificationServiceImp) Update(id string, sideId string, title string, 
 }
 
 func (s *notificationServiceImp) Delete(id string) (bool, error) {
-	return true, nil
+	m := models.Notification{Id: id}
+	return s.notiRepo.Delete(&m)
 }
 
 func (s *notificationServiceImp) SendNotification(m *models.SendNotification) (interface{}, error) {

@@ -20,6 +20,7 @@ func (c *NotificationController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 	b.Handle("POST", "/send", "PostSendNotification")
+	b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
 func (c *NotificationController) GetList(sideId string) MvcResult {
@@ -93,6 +94,21 @@ func (c *NotificationController) PostSendNotification() MvcResult {
 	}
 
 	r, er := c.Service.SendNotification(_noti)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
+	return c.Result
+}
+
+func (c *NotificationController) PostDelete(id string) MvcResult {
+	if id == "" {
+		c.Result.GenerateResult(500, "Id is required!", nil)
+		return c.Result
+	}
+	r, er := c.Service.Delete(id)
 	if er != nil {
 		c.Result.GenerateResult(500, er.Error(), er)
 		return c.Result
