@@ -18,3 +18,15 @@ type RoomModel struct {
 	BlockId string `json:"BlockId" sql:"block_id"`
 	Block   BlockModel
 }
+
+type RoomResidentModel struct {
+	tableName struct{} `sql:"resident.room,alias:room"`
+	Id        string   `json:"Id" sql:"id"`
+	RoomNo    string   `json:"RoomNo" sql:"room_no"`
+	SideId    string   `json:"SideId" sql:"side_id"`
+	Side      Side
+	//	Side      Side
+	BlockId  string `json:"BlockId" sql:"block_id"`
+	Block    BlockModel
+	Resident []ResidentRoomShort
+}

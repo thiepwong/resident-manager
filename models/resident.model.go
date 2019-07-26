@@ -20,6 +20,12 @@ type ResidentRoom struct {
 	Deleted    bool `json:"Deleted" sql:"deleted"`
 }
 
+type ResidentRoomShort struct {
+	tableName  struct{} `sql:"resident.resident_room_mapping,alias:resident_room_mapping"`
+	ResidentId string   `json:"ResidentId" sql:"resident_id"`
+	Resident   Resident
+}
+
 type ResidentModel struct {
 	Resident       Resident `json:"Resident"`
 	RoomId         string   `json:"RoomId"`

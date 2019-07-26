@@ -22,7 +22,8 @@ type FeedbackModel struct {
 	tableName        struct{} `sql:"resident.feedback,alias:feedback"`
 	Id               string   `json:"Id" sql:"id"`
 	ResidentId       string   `json:"ResidentId" sql:"resident_id"`
-	RoomId           string   `json:"RoomId" sql:"room_id"`
+	Resident         Resident
+	RoomId           string `json:"RoomId" sql:"room_id"`
 	Room             Room
 	Title            string `json:"Title" sql:"title"`
 	Content          string `json:"Content" sql:"content"`

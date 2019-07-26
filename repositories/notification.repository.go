@@ -51,5 +51,12 @@ func (r *notificationRepositoryContext) Update(m *models.Notification) (*models.
 }
 
 func (r *notificationRepositoryContext) Delete(m *models.Notification) (bool, error) {
+	res, e := r.db.Model(m).Where("id = ?", m.Id).Delete()
+	if e != nil {
+		return false, e
+	}
+	if res != nil {
+
+	}
 	return true, nil
 }

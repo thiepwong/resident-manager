@@ -43,7 +43,7 @@ func (r *feedbackRepositoryContext) GetPagination(sideId string, offset int, lim
 	if orderBy == "" {
 		orderBy = "id DESC"
 	}
-	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_feedback).Column("feedback.*", "Resident", "Side", "Block", "Room", "Employee").Where("feedback.side_id=?", sideId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_feedback, nil
 }
 

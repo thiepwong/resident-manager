@@ -28,10 +28,12 @@ func (c *RoomController) GetList(sideId string, blockId string) MvcResult {
 		return c.Result
 	}
 
+	roomName := c.Ctx.URLParam("room")
+
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
-	rs, e := c.Service.GetList(sideId, blockId, _pageIndex, _pageSize, _orderBy)
+	rs, e := c.Service.GetList(sideId, blockId, roomName, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result

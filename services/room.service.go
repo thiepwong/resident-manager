@@ -11,7 +11,7 @@ import (
 type RoomService interface {
 	Add(string, string, string) (*models.Room, error)
 	GetById(string) (*models.RoomModel, error)
-	GetList(string, string, int, int, string) (*[]models.RoomModel, error)
+	GetList(string, string, string, int, int, string) (*[]models.RoomResidentModel, error)
 	Update(string, string, string, string) (*models.Room, error)
 	Delete(string) (bool, error)
 }
@@ -43,13 +43,13 @@ func (s *roomServiceImp) GetById(id string) (*models.RoomModel, error) {
 	return s.roomRepo.GetById(id)
 }
 
-func (s *roomServiceImp) GetList(sideId string, blockId string, pageIndex int, pageSize int, orderBy string) (*[]models.RoomModel, error) {
+func (s *roomServiceImp) GetList(sideId string, blockId string, roomName string, pageIndex int, pageSize int, orderBy string) (*[]models.RoomResidentModel, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.roomRepo.GetPagination(sideId, blockId, offset, pageSize, orderBy)
+	rs, e := s.roomRepo.GetPagination(sideId, blockId, roomName, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}
