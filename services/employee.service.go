@@ -32,6 +32,8 @@ type EmployeeService interface {
 	ResetPassword(*models.ResetPassword) (interface{}, error)
 	ActiveAccount(string) (interface{}, error)
 	Check(string) (bool, error)
+	AccountCheck(string) (interface{}, error)
+	Delete(string) (bool, error)
 }
 
 type employeeServiceImp struct {
@@ -351,4 +353,38 @@ func (s *employeeServiceImp) ActiveAccount(id string) (interface{}, error) {
 
 func (s *employeeServiceImp) Check(mobile string) (bool, error) {
 	return s.employeeRepo.Check(mobile)
+}
+
+func (s *employeeServiceImp) AccountCheck(mobile string) (interface{}, error) {
+
+	url := s.config.Option.SmsUrl + "accounts/internal-check?api_token=" + s.config.Option.SmsApiToken + "&mobile=" + mobile
+	req, e := http.NewRequest("GET", url, nil)
+	if e != nil {
+		return nil, e
+	}
+
+	// Do the request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
+	var res models.Response
+	json.NewDecoder(response.Body).Decode(&res)
+	if res.Errors != nil {
+
+		_err := res.Errors.(map[string]interface{})
+		if _err["code"] != "200" {
+			_str := fmt.Sprintf("%s", _err["message"])
+			e = errors.New(_str)
+		}
+	}
+
+	return res.Data, e
+}
+
+func (s *employeeServiceImp) Delete(id string) (bool, error) {
+	return s.employeeRepo.Delete(id)
 }

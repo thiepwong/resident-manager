@@ -15,6 +15,7 @@ type EmployeeRepository interface {
 	Update(*models.Employee) (*models.Employee, error)
 	GetRole(string) (*models.EmployeeModel, error)
 	Check(string) (bool, error)
+	Delete(string) (bool, error)
 }
 
 type employeeRepositoryContext struct {
@@ -99,5 +100,18 @@ func (emp *employeeRepositoryContext) Check(mobile string) (bool, error) {
 	if _emp.ID == "" {
 		return false, errors.New("This mobile number is not registered!")
 	}
+	return true, nil
+}
+
+func (emp *employeeRepositoryContext) Delete(id string) (bool, error) {
+	var _emp models.Employee
+	r, e := emp.db.Model(&_emp).Where("id= ?", id).Delete()
+	if e != nil {
+		return false, e
+	}
+	if r != nil {
+
+	}
+
 	return true, nil
 }

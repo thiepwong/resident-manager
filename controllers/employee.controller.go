@@ -29,6 +29,8 @@ func (c *EmployeeController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("POST", "/reset-password", "PostResetPassword")
 	b.Handle("POST", "/internal-active/{id:string}", "PostInternalActive")
 	b.Handle("GET", "/check/{mobile:string}", "GetCheck")
+	b.Handle("GET", "/account-check/{mobile:string}", "GetAccountCheck")
+	b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
 func (c *EmployeeController) PostRegister() MvcResult {
@@ -235,7 +237,46 @@ func (c *EmployeeController) PostInternalActive(id string) MvcResult {
 
 func (c *EmployeeController) GetCheck(mobile string) MvcResult {
 
+	if mobile == "" {
+		c.Result.GenerateResult(500, "Mobile is require!", nil)
+		return c.Result
+	}
+
 	r, er := c.Service.Check(mobile)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
+	return c.Result
+}
+
+func (c *EmployeeController) GetAccountCheck(mobile string) MvcResult {
+
+	if mobile == "" {
+		c.Result.GenerateResult(500, "Mobile is require!", nil)
+		return c.Result
+	}
+
+	r, er := c.Service.AccountCheck(mobile)
+	if er != nil {
+		c.Result.GenerateResult(500, er.Error(), er)
+		return c.Result
+	}
+	c.Result.GenerateResult(200, "", r)
+
+	return c.Result
+}
+
+func (c *EmployeeController) PostDelete(id string) MvcResult {
+
+	if id == "" {
+		c.Result.GenerateResult(500, "Id is require!", nil)
+		return c.Result
+	}
+
+	r, er := c.Service.Delete(id)
 	if er != nil {
 		c.Result.GenerateResult(500, er.Error(), er)
 		return c.Result
