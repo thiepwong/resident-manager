@@ -66,6 +66,6 @@ func (r *feedbackRepositoryContext) GetListByEmployeeId(employeeId string, offse
 		orderBy = "feedback.created DESC"
 	}
 	var _feedback []models.FeedbackModel
-	r.db.Model(&_feedback).Column("feedback.*", "Side", "Block", "Room", "Employee").Where("feedback.employee_id=?", employeeId).Order(orderBy).Limit(limit).Offset(offset).Select()
+	r.db.Model(&_feedback).Column("feedback.*","Resident", "Side", "Block", "Room", "Employee").Where("feedback.employee_id=?", employeeId).Order(orderBy).Limit(limit).Offset(offset).Select()
 	return &_feedback, nil
 }
