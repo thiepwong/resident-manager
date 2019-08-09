@@ -14,20 +14,21 @@ type RoomController struct {
 }
 
 func (c *RoomController) BeforeActivation(b mvc.BeforeActivation) {
-	b.Handle("GET", "/list/{sideId:string}/{blockId:string}", "GetList")
+	b.Handle("GET", "/list/{sideId:string}", "GetList")
 	b.Handle("GET", "/detail/{id:string}", "GetById")
 	b.Handle("POST", "/add", "PostAdd")
 	b.Handle("POST", "/update/{id:string}", "PostUpdate")
 	b.Handle("POST", "/delete/{id:string}", "PostDelete")
 }
 
-func (c *RoomController) GetList(sideId string, blockId string) MvcResult {
+func (c *RoomController) GetList(sideId string) MvcResult {
 
 	if sideId == "" {
 		c.Result.GenerateResult(500, "Side id is required for list", nil)
 		return c.Result
 	}
 
+	blockId := c.Ctx.URLParam("block")
 	roomName := c.Ctx.URLParam("room")
 
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))

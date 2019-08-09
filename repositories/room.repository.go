@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/go-pg/pg"
 	"github.com/thiepwong/resident-manager/models"
@@ -10,7 +10,7 @@ import (
 type RoomRepository interface {
 	Add(*models.Room) (*models.Room, error)
 	GetById(string) (*models.RoomModel, error)
-	GetPagination(string, string, string, int, int, string) (*[]models.RoomResidentModel, error)
+	GetPagination(string, string, string, int, int, string) (interface{}, error)
 	Update(*models.Room) (*models.Room, error)
 	Delete(*models.Room) (bool, error)
 }
@@ -43,30 +43,29 @@ func (r *roomRepositoryContext) GetById(id string) (*models.RoomModel, error) {
 
 }
 
-func (r *roomRepositoryContext) GetPagination(sideId string, blockId string, roomName string, offset int, limit int, orderBy string) (*[]models.RoomResidentModel, error) {
-	var _room []models.RoomResidentModel
+func (r *roomRepositoryContext) GetPagination(sideId string, blockId string, roomName string, offset int, limit int, orderBy string) (interface{}, error) {
+	var _room []models.RoomQueyModel
+	var _result models.ModelResult
+	var count int
 	if orderBy == "" {
-		orderBy = "id DESC"
-	}
-	var _side models.Side
-	if roomName != "" {
-		r.db.Model(&_room).Column("room.*", "Side", "Block").Where("block_id=?", blockId).Where("LOWER(room_no) LIKE ?", "%"+strings.ToLower(roomName)+"%").Order(orderBy).Limit(limit).Offset(offset).Select()
-
-	} else {
-		r.db.Model(&_room).Column("room.*", "Side", "Block").Where("block_id=?", blockId).Order(orderBy).Limit(limit).Offset(offset).Select()
-
+		orderBy = "room_no ASC"
 	}
 
-	r.db.Model(&_side).Where("id=?", sideId).Select()
+	count_query := fmt.Sprintf("select count(r.id) from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.name) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' )", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName)
 
-	var _residents []models.ResidentRoomShort
-	for i := 0; i < len(_room); i++ {
-		r.db.Model(&_residents).Column("resident_room_mapping.*", "Resident").Where("resident_room_mapping.room_id = ?", _room[i].Id).Select()
-		_room[i].Block.Side = _side
-		_room[i].Resident = _residents
+	select_query := fmt.Sprintf("select r.id, r.room_no, rb.id blockid, rb.name blockname, rs.id sideid, rs.name sidename from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.name) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' ) ORDER BY %s offset %d limit %d ", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName, orderBy, offset, limit)
+
+	_, e := r.db.Query(&count, count_query)
+
+	_, e = r.db.Query(&_room, select_query)
+
+	if e != nil {
+		return nil, e
 	}
 
-	return &_room, nil
+	_result.TotalRecord = count
+	_result.Rows = _room
+	return _result, nil
 }
 
 func (r *roomRepositoryContext) Update(m *models.Room) (*models.Room, error) {
