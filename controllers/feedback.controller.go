@@ -34,10 +34,14 @@ func (c *FeedbackController) GetList(sideId string) MvcResult {
 	_orderBy := c.Ctx.URLParam("order")
 
 	_status, e := strconv.Atoi(c.Ctx.URLParam("status"))
-	_employId := c.Ctx.URLParam("employ")
+	_residentName := c.Ctx.URLParam("resident")
 	_blockId := c.Ctx.URLParam("block")
+	_workderName := c.Ctx.URLParam("worker")
+	_handlerName := c.Ctx.URLParam("handler")
+	_fromDate, e := strconv.Atoi(c.Ctx.URLParam("from"))
+	_toDate, e := strconv.Atoi(c.Ctx.URLParam("to"))
 
-	rs, e := c.Service.GetList(sideId, _blockId, _employId, _status, _pageIndex, _pageSize, _orderBy)
+	rs, e := c.Service.GetList(sideId, _blockId, _residentName, _workderName, _handlerName, _fromDate, _toDate, _status, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result

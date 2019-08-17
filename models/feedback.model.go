@@ -40,3 +40,23 @@ type FeedbackModel struct {
 	PositionNote     string `json:"PositionNote" sql:"position_note"`
 	AssignedBy       string `json:"AssignedBy" sql:"assigned_by"`
 }
+
+type FeedbackQueryModel struct {
+	Id               string `json:"Id" sql:"id"`
+	Title            string `json:"Title" sql:"title"`
+	Content          string `json:"Content" sql:"content"`
+	Images           string `json:"Images" sql:"images"`
+	Status           int    `json:"Status" sql:"status"`
+	DueDate          int    `json:"DueDate" sql:"due_date"`
+	ActualFinishDate int    `json:"ActualFinishDate" sql:"actual_finish_date"`
+	PositionNote     string `json:"PositionNote" sql:"position_note"`
+	Created          int    `json:"Created" sql:"created"`
+	ResidentName     string `json:"ResidentName" sql:"full_name"`
+	ResidentPhone    string `json:"ResidentPhone" sql:"phone_no"`
+	RoomName         string `json:"RoomName" sql:"room_no"`
+	WorkerName       string `json:"WorkerName" sql:"worker_name"`
+	WorkerPhone      string `json:"WorkerPhone" sql:"mobile"`
+	BlockName        string `json:"BlockName" sql:"block_name"`
+	SideId           string `json:"SideId" sql:"side_id"`
+	HandlerName      string `json:"HandlerName" sql:"handler_name"`
+}

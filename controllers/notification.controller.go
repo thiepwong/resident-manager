@@ -27,7 +27,10 @@ func (c *NotificationController) GetList(sideId string) MvcResult {
 	_pageIndex, e := strconv.Atoi(c.Ctx.URLParam("page"))
 	_pageSize, e := strconv.Atoi(c.Ctx.URLParam("size"))
 	_orderBy := c.Ctx.URLParam("order")
-	rs, e := c.Service.GetList(sideId, _pageIndex, _pageSize, _orderBy)
+	_fromDate, e := strconv.Atoi(c.Ctx.URLParam("from"))
+	_toDate, e := strconv.Atoi(c.Ctx.URLParam("to"))
+	_status, e := strconv.ParseBool(c.Ctx.URLParam("status"))
+	rs, e := c.Service.GetList(sideId, _fromDate, _toDate, _status, _pageIndex, _pageSize, _orderBy)
 	if e != nil {
 		c.Result.GenerateResult(500, e.Error(), e)
 		return c.Result

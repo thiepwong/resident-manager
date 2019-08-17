@@ -21,6 +21,19 @@ type NotificationModel struct {
 	Content     string `json:"Content" sql:"body"`
 }
 
+type NotificationQueryModel struct {
+	Id          string `json:"Id" sql:"id"`
+	Title       string `json:"Title" sql:"title"`
+	PublishDate int64  `json:"PublishDate" sql:"publish_date"`
+	SendResult  bool   `json:"SendResult" sql:"send_success"`
+	Content     string `json:"Content" sql:"body"`
+	SideId      string `json:"SideId" sql:"side_id"`
+	SideName    string `json:"SideName" sql:"side_name"`
+	Hotline     string `json:"Hotline" sql:"hotline"`
+	Address     string `json:"Address" sql:"address"`
+	CoverPhotos string `json:"CoverPhotos" sql:"cover_photos"`
+}
+
 type SendNotification struct {
 	Topic   string `json:"Topic"`
 	Title   string `json:"Title"`

@@ -11,7 +11,7 @@ import (
 type FeedbackService interface {
 	Add(string, string, string) (*models.Feedback, error)
 	GetById(string) (*models.FeedbackModel, error)
-	GetList(string, string, string, int, int, int, string) (interface{}, error)
+	GetList(string, string, string, string, string, int, int, int, int, int, string) (interface{}, error)
 	Update(string, int, string, string, int, int) (*models.Feedback, error)
 	Delete(string) (bool, error)
 	GetListByEmployeeId(string, int, int, string) (interface{}, error)
@@ -44,13 +44,13 @@ func (s *feedbackServiceImp) GetById(id string) (*models.FeedbackModel, error) {
 	return s.feedbackRepo.GetById(id)
 }
 
-func (s *feedbackServiceImp) GetList(sideId string, blockId string, employeeId string, status int, pageIndex int, pageSize int, orderBy string) (interface{}, error) {
+func (s *feedbackServiceImp) GetList(sideId string, blockId string, residentName string, workerName string, handlerName string, fromDate int, toDate int, status int, pageIndex int, pageSize int, orderBy string) (interface{}, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}
 	var offset int
 	offset = (pageIndex - 1) * pageSize
-	rs, e := s.feedbackRepo.GetPagination(sideId, blockId, employeeId, status, offset, pageSize, orderBy)
+	rs, e := s.feedbackRepo.GetPagination(sideId, blockId, residentName, workerName, handlerName, fromDate, toDate, status, offset, pageSize, orderBy)
 	if e != nil {
 		return nil, e
 	}
