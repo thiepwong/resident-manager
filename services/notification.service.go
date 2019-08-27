@@ -17,7 +17,7 @@ import (
 
 type NotificationService interface {
 	Add(string, string, int64, bool, string) (*models.Notification, error)
-	GetList(string, int, int, bool, int, int, string) (interface{}, error)
+	GetList(string, int, int, int, int, int, string) (interface{}, error)
 	GetById(string) (*models.NotificationModel, error)
 	Update(string, string, string, int64, bool, string) (*models.Notification, error)
 	Delete(string) (bool, error)
@@ -52,7 +52,7 @@ func (s *notificationServiceImp) Add(sideId string, title string, publishDate in
 	return s.notiRepo.Add(_noti)
 }
 
-func (s *notificationServiceImp) GetList(sideId string, fromDate int, toDate int, status bool, pageIndex int, pageSize int, orderBy string) (interface{}, error) {
+func (s *notificationServiceImp) GetList(sideId string, fromDate int, toDate int, status int, pageIndex int, pageSize int, orderBy string) (interface{}, error) {
 	if pageIndex < 1 || pageSize < 1 {
 		return nil, errors.New("Page index or page Size is invalid! Please check!")
 	}

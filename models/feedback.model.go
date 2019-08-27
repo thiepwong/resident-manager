@@ -54,8 +54,10 @@ type FeedbackQueryModel struct {
 	ResidentName     string `json:"ResidentName" sql:"full_name"`
 	ResidentPhone    string `json:"ResidentPhone" sql:"phone_no"`
 	RoomName         string `json:"RoomName" sql:"room_no"`
+	WorkerId         string `json:"WorkerId" sql:"worker_id"`
 	WorkerName       string `json:"WorkerName" sql:"worker_name"`
 	WorkerPhone      string `json:"WorkerPhone" sql:"mobile"`
+	BlockId          string `json:"BlockId" sql:"block_id"`
 	BlockName        string `json:"BlockName" sql:"block_name"`
 	SideId           string `json:"SideId" sql:"side_id"`
 	HandlerName      string `json:"HandlerName" sql:"handler_name"`

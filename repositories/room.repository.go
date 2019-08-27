@@ -51,9 +51,9 @@ func (r *roomRepositoryContext) GetPagination(sideId string, blockId string, roo
 		orderBy = "room_no ASC"
 	}
 
-	count_query := fmt.Sprintf("select count(r.id) from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.name) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' )", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName)
+	count_query := fmt.Sprintf("select count(r.id) from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.id) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' )", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName)
 
-	select_query := fmt.Sprintf("select r.id, r.room_no, rb.id blockid, rb.name blockname, rs.id sideid, rs.name sidename from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.name) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' ) ORDER BY %s offset %d limit %d ", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName, orderBy, offset, limit)
+	select_query := fmt.Sprintf("select r.id, r.room_no, rb.id blockid, rb.name blockname, rs.id sideid, rs.name sidename from resident.room r left join resident.block rb on rb.id = r.block_id left join resident.side rs on rs.id = r.side_id where  r.side_id='%s' AND (r.block_id in (select id from resident.block b where LOWER(b.id) like LOWER('%s')) or '%s' = '') AND ( lower(room_no) like '%s' or  '%s' = '' ) ORDER BY %s offset %d limit %d ", sideId, "%"+blockId+"%", blockId, "%"+roomName+"%", roomName, orderBy, offset, limit)
 
 	_, e := r.db.Query(&count, count_query)
 

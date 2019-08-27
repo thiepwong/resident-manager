@@ -9,7 +9,7 @@ import (
 
 type NotificationRepository interface {
 	Add(*models.Notification) (*models.Notification, error)
-	GetPagination(string, int, int, bool, int, int, string) (interface{}, error)
+	GetPagination(string, int, int, int, int, int, string) (interface{}, error)
 	GetById(id string) (*models.NotificationModel, error)
 	Update(*models.Notification) (*models.Notification, error)
 	Delete(*models.Notification) (bool, error)
@@ -29,7 +29,7 @@ func (r *notificationRepositoryContext) Add(m *models.Notification) (*models.Not
 	return m, r.db.Insert(m)
 }
 
-func (r *notificationRepositoryContext) GetPagination(sideId string, fromDate int, toDate int, status bool, offset int, limit int, orderBy string) (interface{}, error) {
+func (r *notificationRepositoryContext) GetPagination(sideId string, fromDate int, toDate int, status int, offset int, limit int, orderBy string) (interface{}, error) {
 	var _noti []models.NotificationQueryModel
 	var _result models.ModelResult
 	var count int
@@ -38,8 +38,17 @@ func (r *notificationRepositoryContext) GetPagination(sideId string, fromDate in
 		orderBy = "title DESC"
 	}
 
-	count_query := fmt.Sprintf("select count(sn.id)  from resident.send_notification sn left join resident.side rs on rs.id = sn.side_id where sn.side_id = '%s'	and (sn.publish_date >= %d or %d = 0) and (sn.publish_date <= %d or %d=0 ) and (sn.send_success = %t or %t = null) ", sideId, fromDate, fromDate, toDate, toDate, status, status)
-	select_query := fmt.Sprintf("select sn.id, sn.title, sn.publish_date, sn.send_success, sn.body, rs.id side_id, rs.NAME side_name, rs.hotline,rs.address,rs.cover_photos from resident.send_notification sn left join resident.side rs on rs.id = sn.side_id where sn.side_id = '%s'	and (sn.publish_date >= %d or %d = 0) and (sn.publish_date <= %d or %d=0 ) and (sn.send_success = %t or %t = null)  order by  %s offset %d limit %d", sideId, fromDate, fromDate, toDate, toDate, status, status, orderBy, offset, limit)
+	var status_query string
+	if status > 0 {
+		status_query = fmt.Sprintf("and (sn.send_success = %t or %t = null)", true, true)
+	} else if status == 0 {
+		status_query = fmt.Sprintf("and (sn.send_success = %t or %t = null)", false, false)
+	} else {
+		status_query = ""
+	}
+
+	count_query := fmt.Sprintf("select count(sn.id)  from resident.send_notification sn left join resident.side rs on rs.id = sn.side_id where sn.side_id = '%s'	and (sn.publish_date >= %d or %d = 0) and (sn.publish_date <= %d or %d=0 ) %s", sideId, fromDate, fromDate, toDate, toDate, status_query)
+	select_query := fmt.Sprintf("select sn.id, sn.title, sn.publish_date, sn.send_success, sn.body, rs.id side_id, rs.NAME side_name, rs.hotline,rs.address,rs.cover_photos from resident.send_notification sn left join resident.side rs on rs.id = sn.side_id where sn.side_id = '%s'	and (sn.publish_date >= %d or %d = 0) and (sn.publish_date <= %d or %d=0 ) %s  order by  %s offset %d limit %d", sideId, fromDate, fromDate, toDate, toDate, status_query, orderBy, offset, limit)
 	_, e := r.db.Query(&count, count_query)
 	_, e = r.db.Query(&_noti, select_query)
 
