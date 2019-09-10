@@ -60,5 +60,6 @@ type FeedbackQueryModel struct {
 	BlockId          string `json:"BlockId" sql:"block_id"`
 	BlockName        string `json:"BlockName" sql:"block_name"`
 	SideId           string `json:"SideId" sql:"side_id"`
+	SideName         string `json:"SideName" sql:"side_name"`
 	HandlerName      string `json:"HandlerName" sql:"handler_name"`
 }
