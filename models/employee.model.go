@@ -11,6 +11,7 @@ type Employee struct {
 	CreatedBy    string   `json:"CreatedBy" sql:"created_by"`
 	Role         int      `json:"Role" sql:"role"`
 	Status       int      `json:"Status" sql:"status"`
+	Email        string   `json:"Email" sql:"email"`
 }
 
 type EmployeeModel struct {
@@ -25,6 +26,7 @@ type EmployeeModel struct {
 	CreatedBy    string           `json:"CreatedBy" sql:"created_by"`
 	Role         int              `json:"Role" sql:"role"`
 	Status       int              `json:"Status" sql:"status"`
+	Email        string   `json:"Email" sql:"email"`
 }
 
 type SignUpModel struct {
