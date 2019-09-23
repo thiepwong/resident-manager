@@ -35,6 +35,7 @@ type SignUpModel struct {
 	Mobile   string `json:"mobile"`
 	Email    string `json:"email"`
 	Fullname string `json:"fullname"`
+	SendOTP  bool 	`json:"notSendOTP"`
 }
 
 type ResponseError struct {
